@@ -40,11 +40,11 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
-                use: [ "style-loader", "css-loader" ]
+                use: ["style-loader", "css-loader"]
             },
             {
                 test: /\.svg$/,
-                use: [ "@svgr/webpack" ]
+                use: ["@svgr/webpack"]
             }
         ]
     },
@@ -69,6 +69,6 @@ module.exports = {
         path: path.resolve(__dirname, "dist")
     },
     resolve: {
-        extensions: [ ".js", ".jsx" ]
+        extensions: [".js", ".jsx"]
     }
 };

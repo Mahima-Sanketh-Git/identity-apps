@@ -426,6 +426,14 @@ export interface flowsNS {
                     label: string;
                     hint: string;
                 };
+                flowType: {
+                    label: string;
+                    hint: string;
+                    options: {
+                        registration: string;
+                        onboarding: string;
+                    };
+                };
             };
         };
     };

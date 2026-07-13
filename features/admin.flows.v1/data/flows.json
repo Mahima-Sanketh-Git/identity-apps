@@ -26,6 +26,15 @@
             "path": "INVITE_USER_PASSWORD_SETUP_FLOW_BUILDER",
             "type": "INVITED_USER_REGISTRATION",
             "disabled": false
+        },
+        {
+            "id": "onboarding",
+            "heading": "Self Onboarding",
+            "description": "Build a customized B2B onboarding experience with onboarding steps tailored to your organization.",
+            "featureStatusKey": "flows.types.list.onboarding",
+            "path": "ONBOARDING_FLOW_BUILDER",
+            "type": "ONBOARDING",
+            "disabled": false
         }
     ]
 }

@@ -31,7 +31,7 @@ class RegistrationFlowExecutorConstants {
     /**
      * Private constructor to avoid object instantiation from outside the class.
      */
-    private constructor() {}
+    private constructor() { }
 
     public static readonly PASSWORD_PROVISIONING_EXECUTOR: string = "PasswordProvisioningExecutor";
 
@@ -42,6 +42,10 @@ class RegistrationFlowExecutorConstants {
     public static readonly GOOGLE_EXECUTOR: string = "GoogleExecutor";
 
     public static readonly MAGIC_LINK_EXECUTOR: string = "MagicLinkExecutor";
+
+    public static readonly ORG_CREATE_EXECUTOR: string = "OrgCreateExecutor";
+
+    public static readonly USER_PROVISIONING_EXECUTOR: string = "UserProvisioningExecutor";
 }
 
 export default RegistrationFlowExecutorConstants;

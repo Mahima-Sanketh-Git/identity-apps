@@ -27,97 +27,107 @@ import PasswordFieldAdapter from "./password-field-adapter";
 import PhoneNumberFieldAdapter from "./phone-number-field-adapter";
 import RadioFieldAdapter from "./radio-field-adapter";
 import TextFieldAdapter from "./text-field-adapter";
+import OrgHandleFieldAdapter from "./org-handle-field-adapter";
 
 const InputFieldAdapter = ({ component, formState, formStateHandler, formFieldError }) => {
     switch (component.variant) {
         case "TEXT":
             return (
                 <TextFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "EMAIL":
             return (
                 <TextFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "DATE":
             return (
                 <DateFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "COUNTRY":
             return (
                 <CountryFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "PASSWORD":
             return (
                 <PasswordFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    formErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    formErrorHandler={formFieldError}
                 />
             );
         case "TELEPHONE":
             return (
                 <PhoneNumberFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "OTP":
             return (
                 <OTPFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "CHECKBOX":
             return (
                 <CheckboxFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "NUMBER":
             return (
                 <NumberFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         case "CHOICE":
             return (
                 <RadioFieldAdapter
-                    component={ component }
-                    formState={ formState }
-                    formStateHandler={ formStateHandler }
-                    fieldErrorHandler={ formFieldError }
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
+                />
+            );
+        case "ORG_HANDLE":
+            return (
+                <OrgHandleFieldAdapter
+                    component={component}
+                    formState={formState}
+                    formStateHandler={formStateHandler}
+                    fieldErrorHandler={formFieldError}
                 />
             );
         default:

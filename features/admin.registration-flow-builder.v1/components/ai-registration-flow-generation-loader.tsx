@@ -61,6 +61,8 @@ const RegistrationFlowAILoader = (): ReactElement => {
     useEffect(() => {
         const targetProgress: number = getProgress();
 
+        console.log("Target Progress: ", targetProgress);
+
         const interval: ReturnType<typeof setInterval> = setInterval(() => {
             setCurrentProgress((prevProgress: number) => {
                 if (prevProgress >= targetProgress) {

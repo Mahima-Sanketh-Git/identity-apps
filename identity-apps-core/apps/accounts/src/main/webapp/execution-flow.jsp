@@ -521,7 +521,13 @@
             ReactDOM.render(
                 createElement(
                     GlobalContextProvider,
-                    { globalData: <%= reactGlobalContextJson %> },
+                    {
+                        globalData: Object.assign(
+                            {},
+                            <%= reactGlobalContextJson %>,
+                            { organizations: { checkHandleUrl: "<%= accountsBaseURL %>" + "/util/org-handle-check-api.jsp" } }
+                        )
+                    },
                     createElement(
                         I18nProvider,
                         { locale: "<%= Encode.forJavaScript(lang) %>", translationsObject: <%= i18nJsonString %> },
