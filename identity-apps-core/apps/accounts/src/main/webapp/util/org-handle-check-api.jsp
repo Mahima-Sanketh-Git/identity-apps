@@ -18,6 +18,7 @@
 
 <%@ page contentType="application/json;charset=UTF-8" language="java" %>
 <%@ page import="java.net.*, java.io.*" %>
+<%@ page import="java.util.Base64" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@include file="../includes/init-url.jsp" %>
 
@@ -38,6 +39,24 @@
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Content-Type", "application/json");
         conn.setRequestProperty("Accept", "application/json");
+
+        // The organization check-handle server API requires an authenticated principal, but this
+        // proxy runs in the anonymous onboarding/self-registration flow where no user is logged in.
+        // For the POC we authenticate server-side with configured app credentials (Basic auth).
+        // Credentials come from context init-params, falling back to admin/admin for local runs.
+        // NOTE: this call is server-side only, so credentials are never exposed to the browser.
+        String checkHandleUsername = application.getInitParameter("OrgHandleCheckUsername");
+        String checkHandlePassword = application.getInitParameter("OrgHandleCheckPassword");
+        if (StringUtils.isBlank(checkHandleUsername)) {
+            checkHandleUsername = "admin";
+        }
+        if (StringUtils.isBlank(checkHandlePassword)) {
+            checkHandlePassword = "admin";
+        }
+        String basicAuthCredentials = Base64.getEncoder().encodeToString(
+            (checkHandleUsername + ":" + checkHandlePassword).getBytes("utf-8"));
+        conn.setRequestProperty("Authorization", "Basic " + basicAuthCredentials);
+
         conn.setDoOutput(true);
 
         try (OutputStream os = conn.getOutputStream()) {
