@@ -208,7 +208,7 @@
                             "label": "Organization Name",
                             "required": true,
                             "placeholder": "e.g. Acme Corporation",
-                            "identifier": "http://wso2.org/claims/organization"
+                            "identifier": "organizationName"
                         }
                     },
                     {
@@ -219,8 +219,8 @@
                         "config": {
                             "label": "Organization Handle",
                             "hint": "Auto-generated from your organization name. You can edit it.",
-                            "identifier": "http://wso2.org/claims/organization/handle",
-                            "linkedTo": "http://wso2.org/claims/organization"
+                            "identifier": "organizationHandle",
+                            "linkedTo": "organizationName"
                         }
                     },
                     {
