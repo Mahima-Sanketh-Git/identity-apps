@@ -55,6 +55,7 @@ import useGetActionById from "../api/use-get-action-by-id";
 import useGetActionsByType from "../api/use-get-actions-by-type";
 import ActionVersionChips from "../components/action-version-chips";
 import ActionVersionWarningBanner from "../components/action-version-warning-banner";
+import PreAddOrganizationActionConfigForm from "../components/pre-add-organization-action-config-form";
 import PreIssueAccessTokenActionConfigForm from "../components/pre-issue-access-token-action-config-form";
 import PreIssueIdTokenActionConfigForm from "../components/pre-issue-id-token-action-config-form";
 import PreUpdatePasswordActionConfigForm from "../components/pre-update-password-action-config-form";
@@ -119,6 +120,8 @@ const ActionConfigurationPage: FunctionComponent<ActionConfigurationPageInterfac
                 return ActionsConstants.ACTION_TYPES.PRE_UPDATE_PROFILE.getApiPath();
             case ActionsConstants.ACTION_TYPES.PRE_REGISTRATION.getUrlPath():
                 return ActionsConstants.ACTION_TYPES.PRE_REGISTRATION.getApiPath();
+            case ActionsConstants.ACTION_TYPES.PRE_ADD_ORGANIZATION.getUrlPath():
+                return ActionsConstants.ACTION_TYPES.PRE_ADD_ORGANIZATION.getApiPath();
             default:
                 return null;
         }
@@ -322,6 +325,8 @@ const ActionConfigurationPage: FunctionComponent<ActionConfigurationPageInterfac
                 return t("actions:types.preUpdateProfile.heading");
             case ActionsConstants.ACTION_TYPES.PRE_REGISTRATION.getApiPath():
                 return t("actions:types.preRegistration.heading");
+            case ActionsConstants.ACTION_TYPES.PRE_ADD_ORGANIZATION.getApiPath():
+                return t("actions:types.preAddOrganization.heading");
         }
     };
 
@@ -393,6 +398,20 @@ const ActionConfigurationPage: FunctionComponent<ActionConfigurationPageInterfac
                         <DocumentationLink
                             link={
                                 getLink("develop.actions.types.preRegistration.learnMore")
+                            }
+                            showEmptyLink={ false }
+                        >
+                            { t("common:learnMore") }
+                        </DocumentationLink>
+                    </>
+                );
+            case ActionsConstants.ACTION_TYPES.PRE_ADD_ORGANIZATION.getApiPath():
+                return (
+                    <>
+                        { t("actions:types.preAddOrganization.description.expanded") }
+                        <DocumentationLink
+                            link={
+                                getLink("develop.actions.types.preAddOrganization.learnMore")
                             }
                             showEmptyLink={ false }
                         >
@@ -569,6 +588,16 @@ const ActionConfigurationPage: FunctionComponent<ActionConfigurationPageInterfac
                             { actionTypeApiPath === ActionsConstants.PRE_UPDATE_PROFILE_API_PATH && (
                                 <PreUpdateProfileActionConfigForm
                                     initialValues={ preUpdateProfileActionInitialValues }
+                                    isLoading={ isLoading }
+                                    isReadOnly={ isReadOnly() }
+                                    actionTypeApiPath={ actionTypeApiPath }
+                                    isCreateFormState={ showCreateForm }
+                                    versionInfo={ versionInfo }
+                                />
+                            ) }
+                            { actionTypeApiPath === ActionsConstants.PRE_ADD_ORGANIZATION_API_PATH && (
+                                <PreAddOrganizationActionConfigForm
+                                    initialValues={ actionCommonInitialValues }
                                     isLoading={ isLoading }
                                     isReadOnly={ isReadOnly() }
                                     actionTypeApiPath={ actionTypeApiPath }

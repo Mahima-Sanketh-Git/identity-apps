@@ -22,6 +22,7 @@ import Card from "@oxygen-ui/react/Card";
 import CardContent from "@oxygen-ui/react/CardContent";
 import Typography from "@oxygen-ui/react/Typography";
 import {
+    BuildingIcon,
     CircleCheckFilledIcon,
     KeyFlowIcon,
     PadlockAsteriskFlowIcon,
@@ -176,6 +177,17 @@ const ActionTypesListingPage: FunctionComponent<ActionTypesListingPageInterface>
             route: isActionTypeDisabled(ActionsConstants.PRE_REGISTRATION_API_PATH) ? undefined :
                 AppConstants.getPaths().get("PRE_UPDATE_REGISTRATION_EDIT"),
             type: ActionType.PRE_REGISTRATION
+        },
+        {
+            description: t("actions:types.preAddOrganization.description.shortened"),
+            disabled: isActionTypeDisabled(ActionsConstants.PRE_ADD_ORGANIZATION_API_PATH),
+            featureStatusKey: getFeatureFlagStatus(ActionsConstants.PRE_ADD_ORGANIZATION_API_PATH),
+            heading: t("actions:types.preAddOrganization.heading"),
+            icon: <BuildingIcon size="small" className="icon"/>,
+            identifier: ActionsConstants.PRE_ADD_ORGANIZATION_URL_PATH,
+            route: isActionTypeDisabled(ActionsConstants.PRE_ADD_ORGANIZATION_API_PATH) ? undefined :
+                AppConstants.getPaths().get("PRE_ADD_ORGANIZATION_EDIT"),
+            type: ActionType.PRE_ADD_ORGANIZATION
         }
     ];
 
@@ -190,7 +202,8 @@ const ActionTypesListingPage: FunctionComponent<ActionTypesListingPageInterface>
             [ActionType.PRE_ISSUE_ID_TOKEN]: ActionsConstants.PRE_ISSUE_ID_TOKEN_API_PATH,
             [ActionType.PRE_UPDATE_PASSWORD]: ActionsConstants.PRE_UPDATE_PASSWORD_API_PATH,
             [ActionType.PRE_UPDATE_PROFILE]: ActionsConstants.PRE_UPDATE_PROFILE_API_PATH,
-            [ActionType.PRE_REGISTRATION]: ActionsConstants.PRE_REGISTRATION_API_PATH
+            [ActionType.PRE_REGISTRATION]: ActionsConstants.PRE_REGISTRATION_API_PATH,
+            [ActionType.PRE_ADD_ORGANIZATION]: ActionsConstants.PRE_ADD_ORGANIZATION_API_PATH
         };
 
         const checkFeatureEnabledStatus = (actionType: string): boolean => {
@@ -241,6 +254,10 @@ const ActionTypesListingPage: FunctionComponent<ActionTypesListingPageInterface>
                         actionTypeCounts.preRegistration = actionType.count;
 
                         break;
+                    case ActionType.PRE_ADD_ORGANIZATION:
+                        actionTypeCounts.preAddOrganization = actionType.count;
+
+                        break;
                     default:
                         break;
                 }
@@ -276,6 +293,11 @@ const ActionTypesListingPage: FunctionComponent<ActionTypesListingPageInterface>
     } = useGetActionsByType(ActionsConstants.PRE_REGISTRATION_API_PATH,
         typeCounts?.preRegistration > 0);
 
+    const {
+        data: preAddOrganizationActions
+    } = useGetActionsByType(ActionsConstants.PRE_ADD_ORGANIZATION_API_PATH,
+        typeCounts?.preAddOrganization > 0);
+
     // Version information for each action type
     const preIssueAccessTokenVersionInfo: ActionVersionInfo = useActionVersioning(
         ActionsConstants.PRE_ISSUE_ACCESS_TOKEN_URL_PATH,
@@ -296,6 +318,10 @@ const ActionTypesListingPage: FunctionComponent<ActionTypesListingPageInterface>
     const preRegistrationVersionInfo: ActionVersionInfo = useActionVersioning(
         ActionsConstants.PRE_REGISTRATION_URL_PATH,
         preRegistrationActions?.[0]?.version
+    );
+    const preAddOrganizationVersionInfo: ActionVersionInfo = useActionVersioning(
+        ActionsConstants.PRE_ADD_ORGANIZATION_URL_PATH,
+        preAddOrganizationActions?.[0]?.version
     );
 
     /**
@@ -329,6 +355,11 @@ const ActionTypesListingPage: FunctionComponent<ActionTypesListingPageInterface>
             case ActionsConstants.PRE_REGISTRATION_URL_PATH:
                 versionInfo = preRegistrationVersionInfo;
                 hasConfiguredActions = !!preRegistrationActions?.[0];
+
+                break;
+            case ActionsConstants.PRE_ADD_ORGANIZATION_URL_PATH:
+                versionInfo = preAddOrganizationVersionInfo;
+                hasConfiguredActions = !!preAddOrganizationActions?.[0];
 
                 break;
             default:
@@ -420,6 +451,10 @@ const ActionTypesListingPage: FunctionComponent<ActionTypesListingPageInterface>
                 break;
             case ActionsConstants.PRE_REGISTRATION_URL_PATH:
                 count = typeCounts?.preRegistration;
+
+                break;
+            case ActionsConstants.PRE_ADD_ORGANIZATION_URL_PATH:
+                count = typeCounts?.preAddOrganization;
 
                 break;
             default:

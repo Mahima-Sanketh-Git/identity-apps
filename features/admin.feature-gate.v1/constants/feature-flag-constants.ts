@@ -33,6 +33,7 @@ class FeatureFlagConstants {
     public static readonly FEATURE_FLAG_KEY_MAP: { [key: string]: string } = {
         ACTIONS: "actions",
         ACTIONS_FEATURE_GATE: "console.actions",
+        ACTIONS_TYPES_PRE_ADD_ORGANIZATION: "actions.types.list.preAddOrganization",
         ACTIONS_TYPES_PRE_ISSUE_ACCESS_TOKEN: "actions.types.list.preIssueAccessToken",
         ACTIONS_TYPES_PRE_ISSUE_ID_TOKEN: "actions.types.list.preIssueIdToken",
         ACTIONS_TYPES_PRE_REGISTRATION: "actions.types.list.preRegistration",

@@ -21,6 +21,7 @@ export { default as PreIssueAccessTokenActionConfigForm } from "./components/pre
 export { default as PreIssueIdTokenActionConfigForm } from "./components/pre-issue-id-token-action-config-form";
 export { default as PreUpdatePasswordActionConfigForm } from "./components/pre-update-password-action-config-form";
 export { default as PreUpdateProfileActionConfigForm } from "./components/pre-update-profile-action-config-form";
+export { default as PreAddOrganizationActionConfigForm } from "./components/pre-add-organization-action-config-form";
 export { default as ActionVersionChips } from "./components/action-version-chips";
 export { default as ActionVersionWarningBanner } from "./components/action-version-warning-banner";
 export { useActionVersioning, type ActionVersionInfo } from "./hooks/use-action-versioning";

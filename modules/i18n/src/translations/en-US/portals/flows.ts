@@ -431,7 +431,7 @@ export const flows: flowsNS = {
                     hint: "Select whether this flow is a Registration flow or an Onboarding flow.",
                     options: {
                         registration: "Registration",
-                        onboarding: "Onboarding"
+                        onboarding: "Organization onboarding"
                     }
                 },
                 description: "The <1>End Screen</1> defines what happens once the flow is completed. It allows you to control the user's final experience by selecting one of the following outcomes:"

@@ -1709,6 +1709,17 @@ export const getAppViewRoutes = (): RouteInterface[] => {
                     path: AppConstants.getPaths().get("PRE_UPDATE_PROFILE_EDIT"),
                     protected: true,
                     showOnSidePanel: false
+                },
+                {
+                    component: lazy(() =>
+                        import("@wso2is/admin.actions.v1/pages/action-configuration-page")
+                    ),
+                    exact: true,
+                    id: "pre-add-organization",
+                    name: "Pre Add Organization",
+                    path: AppConstants.getPaths().get("PRE_ADD_ORGANIZATION_EDIT"),
+                    protected: true,
+                    showOnSidePanel: false
                 }
             ],
             component: lazy(() =>

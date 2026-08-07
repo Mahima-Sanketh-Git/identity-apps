@@ -474,6 +474,13 @@ export interface actionsNS {
         notConfigured: string;
     };
     types: {
+        preAddOrganization: {
+            description: {
+                expanded: string;
+                shortened: string;
+            };
+            heading: string;
+        };
         preIssueAccessToken: {
             description: {
                 expanded: string;

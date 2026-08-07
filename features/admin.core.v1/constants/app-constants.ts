@@ -461,6 +461,8 @@ export class AppConstants {
                 `${AppConstants.getAdminViewBasePath()}/actions/pre-update-password` ],
             [ "PRE_UPDATE_PROFILE_EDIT",
                 `${AppConstants.getAdminViewBasePath()}/actions/pre-update-profile` ],
+            [ "PRE_ADD_ORGANIZATION_EDIT",
+                `${AppConstants.getAdminViewBasePath()}/actions/pre-add-organization` ],
             [ "TENANTS", `${AppConstants.getDefaultLayoutBasePath()}/organizations` ],
             [ "EDIT_TENANT", `${AppConstants.getDefaultLayoutBasePath()}/organizations/:id` ],
             [ "EDIT_SELF_ORGANIZATION", `${AppConstants.getDefaultLayoutBasePath()}/organizations/self` ],

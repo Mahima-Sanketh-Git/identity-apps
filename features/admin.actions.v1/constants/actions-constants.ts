@@ -64,19 +64,22 @@ export class ActionsConstants {
     public static readonly PRE_UPDATE_PROFILE_URL_PATH: string = "pre-update-profile";
     public static readonly PRE_REGISTRATION_URL_PATH: string = "pre-registration";
     public static readonly PRE_ISSUE_ID_TOKEN_URL_PATH: string = "pre-issue-id-token";
+    public static readonly PRE_ADD_ORGANIZATION_URL_PATH: string = "pre-add-organization";
 
     public static readonly PRE_ISSUE_ACCESS_TOKEN_API_PATH: string = "preIssueAccessToken";
     public static readonly PRE_UPDATE_PASSWORD_API_PATH: string = "preUpdatePassword";
     public static readonly PRE_UPDATE_PROFILE_API_PATH: string = "preUpdateProfile";
     public static readonly PRE_REGISTRATION_API_PATH: string = "preRegistration";
     public static readonly PRE_ISSUE_ID_TOKEN_API_PATH: string = "preIssueIdToken";
+    public static readonly PRE_ADD_ORGANIZATION_API_PATH: string = "preAddOrganization";
 
     public static readonly ACTIONS_CONFIG_PATHS: Record<string, string> = {
         [ActionsConstants.PRE_ISSUE_ACCESS_TOKEN_URL_PATH]: "pre_issue_access_token",
         [ActionsConstants.PRE_ISSUE_ID_TOKEN_URL_PATH]: "pre_issue_id_token",
         [ActionsConstants.PRE_UPDATE_PASSWORD_URL_PATH]: "pre_update_password",
         [ActionsConstants.PRE_UPDATE_PROFILE_URL_PATH]: "pre_update_profile",
-        [ActionsConstants.PRE_REGISTRATION_URL_PATH]: "pre_registration"
+        [ActionsConstants.PRE_REGISTRATION_URL_PATH]: "pre_registration",
+        [ActionsConstants.PRE_ADD_ORGANIZATION_URL_PATH]: "pre_add_organization"
     };
 
     public static __TEMPORARY__DISALLOWED_RULES: {
@@ -123,12 +126,15 @@ export class ActionsConstants {
         };
 
     public static readonly ACTION_TYPES: {
+        PRE_ADD_ORGANIZATION: ActionType;
         PRE_ISSUE_ACCESS_TOKEN: ActionType;
         PRE_ISSUE_ID_TOKEN: ActionType;
         PRE_UPDATE_PASSWORD: ActionType;
         PRE_UPDATE_PROFILE: ActionType;
         PRE_REGISTRATION: ActionType;
     } = {
+            PRE_ADD_ORGANIZATION: new ActionType(
+                ActionsConstants.PRE_ADD_ORGANIZATION_URL_PATH, ActionsConstants.PRE_ADD_ORGANIZATION_API_PATH),
             PRE_ISSUE_ACCESS_TOKEN: new ActionType(
                 ActionsConstants.PRE_ISSUE_ACCESS_TOKEN_URL_PATH, ActionsConstants.PRE_ISSUE_ACCESS_TOKEN_API_PATH),
             PRE_ISSUE_ID_TOKEN: new ActionType(
@@ -207,8 +213,11 @@ export class ActionsConstants {
         .set("PRE_ISSUE_ID_TOKEN_RULE", "actions.types.preIssueIdToken.edit.rule")
         .set("PRE_UPDATE_PASSWORD_RULE", "actions.types.preUpdatePassword.edit.rule")
         .set("PRE_UPDATE_PROFILE_RULE", "actions.types.preUpdateProfile.edit.rule")
+        .set("PRE_ADD_ORGANIZATION_RULE", "actions.types.preAddOrganization.edit.rule")
         .set("PRE_ISSUE_ACCESS_TOKEN_HEADERS_AND_PARAMS", "actions.types.list.preIssueAccessToken.headersAndParameters")
         .set("PRE_ISSUE_ID_TOKEN_HEADERS_AND_PARAMS", "actions.types.list.preIssueIdToken.headersAndParameters")
         .set("PRE_UPDATE_PASSWORD_HEADERS_AND_PARAMS", "actions.types.list.preUpdatePassword.headersAndParameters")
-        .set("PRE_UPDATE_PROFILE_HEADERS_AND_PARAMS", "actions.types.list.preUpdateProfile.headersAndParameters");
+        .set("PRE_UPDATE_PROFILE_HEADERS_AND_PARAMS", "actions.types.list.preUpdateProfile.headersAndParameters")
+        .set("PRE_ADD_ORGANIZATION_HEADERS_AND_PARAMS",
+            "actions.types.list.preAddOrganization.headersAndParameters");
 }

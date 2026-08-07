@@ -449,6 +449,14 @@ export const actions: actionsNS = {
         notConfigured: "Not Configured"
     },
     types: {
+        preAddOrganization: {
+            description: {
+                expanded: "Use this action to validate or enrich organization details before an organization " +
+                    "is added.",
+                shortened: "This action is executed before adding an organization."
+            },
+            heading: "Pre Add Organization"
+        },
         preIssueAccessToken: {
             description: {
                 expanded:  "Use this action to update claims and scopes of the access token.",
