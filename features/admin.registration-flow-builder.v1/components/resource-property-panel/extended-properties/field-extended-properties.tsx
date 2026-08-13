@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2025, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2025-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -31,10 +31,10 @@ import {
 import useValidationStatus from "@wso2is/admin.flow-builder-core.v1/hooks/use-validation-status";
 import { InputVariants } from "@wso2is/admin.flow-builder-core.v1/models/elements";
 import { IdentifiableComponentInterface } from "@wso2is/core/models";
-import React, { ChangeEvent, FunctionComponent, ReactElement, useMemo, useState } from "react";
-import { ORGANIZATION_ATTRIBUTES } from "../../../data/org-attributes";
+import React, { ChangeEvent, FunctionComponent, ReactElement, useEffect, useMemo, useState } from "react";
 import useRegistrationFlowBuilder from "../../../hooks/use-registration-flow-builder";
-import { Attribute, AttributeType } from "../../../models/attributes";
+import { Attribute, AttributeType, OrganizationAttribute } from "../../../models/attributes";
+import { useGetOrganizationAttributes } from "../../../../admin.organizations.v1/api";
 
 /**
  * Props interface of {@link FieldExtendedProperties}
@@ -62,12 +62,23 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     onChange
 }: FieldExtendedPropertiesPropsInterface): ReactElement => {
     const { supportedAttributes: userAttributes } = useRegistrationFlowBuilder();
+    const { data: orgAttributes, isLoading: isOrgAttributesLoading } = useGetOrganizationAttributes();
     const { selectedNotification } = useValidationStatus();
 
     /**
      * Default attribute type is always USER on mount.
      */
-    const [ attributeType, setAttributeType ] = useState<AttributeType>(AttributeType.User);
+    const [ attributeType, setAttributeType ] = useState<AttributeType>(resource.config.identifierType
+        || AttributeType.User);
+
+    /**
+     * Update the attribute type state whenever the resource config changes.
+     */
+    useEffect(()=>{
+        if(resource.config.identifierType){
+            setAttributeType(resource.config.identifierType);
+        }
+    }, [ resource.config.identifierType ]);
 
     /**
      * Resolve the currently selected user attribute from the resource config.
@@ -83,14 +94,13 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     /**
      * Resolve the currently selected org attribute from the resource config.
      */
-    const selectedOrgAttribute: Attribute = useMemo(() => {
+    const selectedOrgAttribute: OrganizationAttribute = useMemo(() => {
         if (attributeType !== AttributeType.Organization) return null;
-        // TODO: Consider fetching org attributes from a dynamic source instead of a static list.
 
-        return ORGANIZATION_ATTRIBUTES.find(
-            (attribute: Attribute) => attribute?.claimURI === resource.config.identifier
+        return orgAttributes?.find(
+            (attribute: OrganizationAttribute) => attribute?.claimURI === resource.config.identifier
         ) || null;
-    }, [ resource.config.identifier, attributeType ]);
+    }, [ resource.config.identifier, attributeType, orgAttributes ]);
 
     /**
      * Get the validation error message for the identifier field.
@@ -169,8 +179,9 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                             disablePortal
                             disabled={attributeType !== AttributeType.Organization}
                             key={`${resource.id}-org`}
-                            options={ORGANIZATION_ATTRIBUTES}
-                            getOptionLabel={(attribute: Attribute) => attribute?.displayName ?? ""}
+                            options={orgAttributes || []}
+                            loading={isOrgAttributesLoading}
+                            getOptionLabel={(attribute: OrganizationAttribute) => attribute?.displayName ?? ""}
                             sx={{ width: "100%" }}
                             renderInput={(params: AutocompleteRenderInputParams) => (
                                 <TextField
@@ -180,8 +191,8 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                                 />
                             )}
                             value={selectedOrgAttribute}
-                            onChange={(_: ChangeEvent<HTMLInputElement>, attribute: Attribute) => {
-                                onChange("config.identifier", attribute === null ? "" : attribute?.claimURI, resource);
+                            onChange={(_: ChangeEvent<HTMLInputElement>, attribute: OrganizationAttribute | null) => {
+                                onChange("config.identifier", attribute?.claimURI, resource);
                             }}
                         />
                     </Stack>
