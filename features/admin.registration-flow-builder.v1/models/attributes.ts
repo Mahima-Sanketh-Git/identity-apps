@@ -17,5 +17,16 @@
  */
 
 import { Claim } from "@wso2is/core/models";
+import { SupportedOrganizationAttribute } from "../../admin.organizations.v1/models";
 
 export type Attribute = Claim;
+
+export type OrganizationAttribute = SupportedOrganizationAttribute;
+
+/**
+ * Enum for attribute type — distinguishes user profile attributes from organization attributes.
+ */
+export enum AttributeType {
+    User = "USER",
+    Organization = "ORG"
+}
