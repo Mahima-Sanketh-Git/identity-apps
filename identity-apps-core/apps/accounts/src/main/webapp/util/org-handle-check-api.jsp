@@ -42,7 +42,7 @@
 
         // The organization check-handle server API requires an authenticated principal, but this
         // proxy runs in the anonymous onboarding/self-registration flow where no user is logged in.
-        // For the POC we authenticate server-side with configured app credentials (Basic auth).
+        // For now we authenticate server-side with configured app credentials (Basic auth).
         // Credentials come from context init-params, falling back to admin/admin for local runs.
         // NOTE: this call is server-side only, so credentials are never exposed to the browser.
         String checkHandleUsername = application.getInitParameter("OrgHandleCheckUsername");
