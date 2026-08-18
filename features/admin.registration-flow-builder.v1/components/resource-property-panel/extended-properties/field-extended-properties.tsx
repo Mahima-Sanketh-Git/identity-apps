@@ -67,7 +67,7 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
         return "";
     }, [ resource, selectedNotification ]);
 
-    if (resource.variant === InputVariants.Password) {
+    if (resource.variant === InputVariants.Password || resource.variant === InputVariants.OrgHandler ) {
         return null;
     }
 
