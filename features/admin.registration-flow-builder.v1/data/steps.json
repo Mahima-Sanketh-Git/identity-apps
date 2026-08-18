@@ -185,7 +185,7 @@
     "deprecated": false,
     "display": {
         "label": "Organization Onboarding View",
-        "image": "assets/images/icons/organization.svg",
+        "image": "assets/images/icons/building-icon.svg",
         "showOnResourcePanel": true
     },
     "config": {},
@@ -211,11 +211,11 @@
                             "identifier": "organizationName"
                         }
                     },
-                {
+                   {
                         "id": "{{ID}}",
                         "category": "FIELD",
                         "type": "INPUT",
-                        "variant": "TEXT",
+                        "variant": "ORG_HANDLE",
                         "config": {
                             "label": "Organization Handle",
                             "identifier": "organizationHandle",

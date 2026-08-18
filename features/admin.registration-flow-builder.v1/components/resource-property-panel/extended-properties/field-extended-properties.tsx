@@ -126,7 +126,7 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
         onChange("config.identifierType", value, resource);
     };
 
-    if (resource.variant === InputVariants.Password) {
+    if (resource.variant === InputVariants.Password || resource.variant === InputVariants.OrgHandler) {
         return null;
     }
 
