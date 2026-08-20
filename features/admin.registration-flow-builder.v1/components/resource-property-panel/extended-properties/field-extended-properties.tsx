@@ -32,9 +32,9 @@ import useValidationStatus from "@wso2is/admin.flow-builder-core.v1/hooks/use-va
 import { InputVariants } from "@wso2is/admin.flow-builder-core.v1/models/elements";
 import { IdentifiableComponentInterface } from "@wso2is/core/models";
 import React, { ChangeEvent, FunctionComponent, ReactElement, useEffect, useMemo, useState } from "react";
+import OrganizationAttributeConstants from "../../../constants/organization-attribute-constants";
 import useRegistrationFlowBuilder from "../../../hooks/use-registration-flow-builder";
 import { Attribute, AttributeType, OrganizationAttribute } from "../../../models/attributes";
-import { useGetOrganizationAttributes } from "../../../../admin.organizations.v1/api";
 
 /**
  * Props interface of {@link FieldExtendedProperties}
@@ -62,8 +62,9 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     onChange
 }: FieldExtendedPropertiesPropsInterface): ReactElement => {
     const { supportedAttributes: userAttributes } = useRegistrationFlowBuilder();
-    const { data: orgAttributes, isLoading: isOrgAttributesLoading } = useGetOrganizationAttributes();
     const { selectedNotification } = useValidationStatus();
+
+    const orgAttributes: OrganizationAttribute[] = OrganizationAttributeConstants.CORE_ATTRIBUTES;
 
     /**
      * Default attribute type is always USER on mount.
@@ -97,7 +98,7 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     const selectedOrgAttribute: OrganizationAttribute = useMemo(() => {
         if (attributeType !== AttributeType.Organization) return null;
 
-        return orgAttributes?.find(
+        return orgAttributes.find(
             (attribute: OrganizationAttribute) => attribute?.claimURI === resource.config.identifier
         ) || null;
     }, [ resource.config.identifier, attributeType, orgAttributes ]);
@@ -179,8 +180,7 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                             disablePortal
                             disabled={attributeType !== AttributeType.Organization}
                             key={`${resource.id}-org`}
-                            options={orgAttributes || []}
-                            loading={isOrgAttributesLoading}
+                            options={orgAttributes}
                             getOptionLabel={(attribute: OrganizationAttribute) => attribute?.displayName ?? ""}
                             sx={{ width: "100%" }}
                             renderInput={(params: AutocompleteRenderInputParams) => (
