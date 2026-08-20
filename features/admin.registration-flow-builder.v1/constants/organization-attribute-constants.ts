@@ -35,6 +35,17 @@ class OrganizationAttributeConstants {
      */
     private constructor() {}
 
+
+    /**
+     * Allowed shape of a custom organization attribute key.
+     *
+     * Restricted to an alphanumeric/underscore identifier so a key can never contain `/`.
+     * Keys are embedded into slash-separated context paths (`/organization/attributes/<key>`)
+     * when the flow extension access config is built; a `/` inside a key would make the path
+     * ambiguous to parse.
+     */
+    public static readonly KEY_PATTERN: RegExp = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+
     /**
      * Core organization attributes offered by the attribute selector.
      *
