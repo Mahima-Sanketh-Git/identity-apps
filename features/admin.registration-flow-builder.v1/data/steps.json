@@ -208,10 +208,11 @@
                             "label": "Organization Name",
                             "required": true,
                             "placeholder": "e.g. Acme Corporation",
-                            "identifier": "organizationName"
+                            "identifier": "organizationName",
+                            "identifierType": "ORGANIZATION"
                         }
                     },
-                   {
+                    {
                         "id": "{{ID}}",
                         "category": "FIELD",
                         "type": "INPUT",
@@ -219,7 +220,8 @@
                         "config": {
                             "label": "Organization Handle",
                             "identifier": "organizationHandle",
-                            "linkedTo": "organizationName"
+                            "linkedTo": "organizationName",
+                            "identifierType": "ORGANIZATION"
                         }
                     },
                     {
