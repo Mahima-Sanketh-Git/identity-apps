@@ -16,7 +16,7 @@
  * under the License.
  */
 
-import Autocomplete, { AutocompleteRenderInputParams } from "@oxygen-ui/react/Autocomplete";
+import Autocomplete, { AutocompleteRenderInputParams, createFilterOptions } from "@oxygen-ui/react/Autocomplete";
 import FormControl from "@oxygen-ui/react/FormControl";
 import FormControlLabel from "@oxygen-ui/react/FormControlLabel";
 import FormHelperText from "@oxygen-ui/react/FormHelperText";
@@ -31,16 +31,33 @@ import {
 import useValidationStatus from "@wso2is/admin.flow-builder-core.v1/hooks/use-validation-status";
 import { InputVariants } from "@wso2is/admin.flow-builder-core.v1/models/elements";
 import { IdentifiableComponentInterface } from "@wso2is/core/models";
-import React, { ChangeEvent, FunctionComponent, ReactElement, useEffect, useMemo, useState } from "react";
+import React, {
+    ChangeEvent,
+    FunctionComponent,
+    HTMLAttributes,
+    ReactElement,
+    SyntheticEvent,
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+import OrganizationAttributeConstants from "../../../constants/organization-attribute-constants";
 import useRegistrationFlowBuilder from "../../../hooks/use-registration-flow-builder";
 import { Attribute, AttributeType, OrganizationAttribute } from "../../../models/attributes";
-import { useGetOrganizationAttributes } from "../../../../admin.organizations.v1/api";
 
 /**
  * Props interface of {@link FieldExtendedProperties}
  */
 type FieldExtendedPropertiesPropsInterface = CommonResourcePropertiesPropsInterface &
     IdentifiableComponentInterface;
+
+/**
+ * Default substring matcher for the organization attribute selector.
+ */
+const orgAttributeFilter: (
+    _options: OrganizationAttribute[],
+    _state: { inputValue: string }
+) => OrganizationAttribute[] = createFilterOptions<OrganizationAttribute>();
 
 /**
  * Extended properties for the field elements.
@@ -62,8 +79,12 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     onChange
 }: FieldExtendedPropertiesPropsInterface): ReactElement => {
     const { supportedAttributes: userAttributes } = useRegistrationFlowBuilder();
-    const { data: orgAttributes, isLoading: isOrgAttributesLoading } = useGetOrganizationAttributes();
     const { selectedNotification } = useValidationStatus();
+
+    /**
+     * Error shown when a typed custom attribute key is rejected.
+     */
+    const [ orgKeyError, setOrgKeyError ] = useState<string>("");
 
     /**
      * Default attribute type is always USER on mount.
@@ -92,12 +113,57 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     }, [ resource.config.identifier, userAttributes, attributeType ]);
 
     /**
+     * The custom organization attribute currently bound to this field, if any.
+     *
+     * Derived from the saved config rather than held in state: whenever the identifier is an
+     * organization attribute that is not one of the core ones, it must be a custom key. This
+     * keeps the option list in step with the flow definition on every render — including the
+     * first render after reopening a saved flow — so no separate rehydration step is needed.
+     */
+    const customOrgAttribute: OrganizationAttribute = useMemo(() => {
+        const identifier: string = resource.config.identifier;
+
+        if (attributeType !== AttributeType.Organization || !identifier) {
+            return null;
+        }
+
+        const isCore: boolean = OrganizationAttributeConstants.CORE_ATTRIBUTES.some(
+            (attribute: OrganizationAttribute) => attribute.claimURI === identifier
+        );
+
+        // An identifier that cannot be a valid organization attribute key is not one. This is
+        // reached whenever the type is switched away from User: the radio applies on the next
+        // render while the config write is debounced, so for that window the identifier still
+        // holds the previous user claim URI. Without this guard that URI would be offered as a
+        // custom organization attribute. It also protects flows published before the identifier
+        // was cleared on type switch.
+        if (isCore || !OrganizationAttributeConstants.KEY_PATTERN.test(identifier)) {
+            return null;
+        }
+
+        return { claimURI: identifier, displayName: identifier };
+    }, [ resource.config.identifier, attributeType ]);
+
+    /**
+     * Options offered by the organization attribute selector — the core attributes plus the
+     * custom key bound to this field, so a custom key renders as a selected option rather
+     * than a loose value.
+     */
+    const orgAttributes: OrganizationAttribute[] = useMemo(
+        () => (
+            customOrgAttribute
+                ? [ ...OrganizationAttributeConstants.CORE_ATTRIBUTES, customOrgAttribute ]
+                : OrganizationAttributeConstants.CORE_ATTRIBUTES),
+        [ customOrgAttribute ]
+    );
+
+    /**
      * Resolve the currently selected org attribute from the resource config.
      */
     const selectedOrgAttribute: OrganizationAttribute = useMemo(() => {
         if (attributeType !== AttributeType.Organization) return null;
 
-        return orgAttributes?.find(
+        return orgAttributes.find(
             (attribute: OrganizationAttribute) => attribute?.claimURI === resource.config.identifier
         ) || null;
     }, [ resource.config.identifier, attributeType, orgAttributes ]);
@@ -116,14 +182,94 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     }, [ resource, selectedNotification ]);
 
     /**
+     * Write the whole `config` object in a single `onChange` call.
+     *
+     * `handlePropertyChange` in the core panel is debounced on a shared 300ms timer, so two
+     * `onChange` calls fired from one event handler collapse into one and the first is lost.
+     * Merging the changes here and writing them under the `config` key keeps every field in
+     * step. Keys set to `undefined` are deleted so no empty property survives in the flow JSON.
+     *
+     * @param changes - Config fields to add, overwrite, or (when `undefined`) remove.
+     */
+    const updateConfig = (changes: Record<string, unknown>): void => {
+        const updated: Record<string, unknown> = { ...resource.config, ...changes };
+
+        Object.keys(updated).forEach((key: string) => {
+            if (updated[key] === undefined) {
+                delete updated[key];
+            }
+        });
+
+        onChange("config", updated, resource);
+    };
+
+    /**
+     * Append a synthetic entry for the typed text when it matches no existing option, so an
+     * admin can bind an attribute key this organization has not used before.
+     */
+    const filterOrgAttributes = (
+        options: OrganizationAttribute[],
+        state: { inputValue: string }
+    ): OrganizationAttribute[] => {
+        const filtered: OrganizationAttribute[] = orgAttributeFilter(options, state);
+        const typedKey: string = state.inputValue.trim();
+        const alreadyOffered: boolean = options.some(
+            (attribute: OrganizationAttribute) => attribute.claimURI === typedKey
+        );
+
+        if (typedKey && !alreadyOffered) {
+            filtered.push({ claimURI: typedKey, displayName: typedKey });
+        }
+
+        return filtered;
+    };
+
+    /**
+     * Bind an organization attribute key to the field.
+     *
+     * Receives an option object when a row is picked, and a raw string when the admin types a
+     * key and presses Enter without picking one — `freeSolo` allows submitting text that was
+     * never an option, so both shapes must be handled.
+     */
+    const handleOrgAttributeChange = (
+        _: SyntheticEvent,
+        value: OrganizationAttribute | string
+    ): void => {
+        if (value === null) {
+            setOrgKeyError("");
+            updateConfig({ identifier: "", identifierType: undefined });
+
+            return;
+        }
+
+        const key: string = typeof value === "string" ? value.trim() : value.claimURI;
+
+        if (!OrganizationAttributeConstants.KEY_PATTERN.test(key)) {
+            setOrgKeyError(
+                "Attribute key must start with a letter and contain only letters, numbers or underscores."
+            );
+
+            return;
+        }
+
+        setOrgKeyError("");
+        updateConfig({ identifier: key, identifierType: AttributeType.Organization });
+    };
+
+    /**
      * Handle attribute type radio change.
      * Clears the currently stored identifier whenever the type is switched.
      */
     const handleAttributeTypeChange = (_: ChangeEvent<HTMLInputElement>, value: string): void => {
         setAttributeType(value as AttributeType);
-        // Clear the selected attribute value.
-        onChange("config.identifier", "", resource);
-        onChange("config.identifierType", value, resource);
+        setOrgKeyError("");
+
+        // Branch on the incoming value rather than `attributeType`: the state setter above is
+        // asynchronous, so `attributeType` still holds the previous type at this point.
+        updateConfig({
+            identifier: "",
+            identifierType: value === AttributeType.Organization ? AttributeType.Organization : undefined
+        });
     };
 
     if (resource.variant === InputVariants.Password || resource.variant === InputVariants.OrgHandler) {
@@ -164,8 +310,11 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                                 />
                             )}
                             value={selectedUserAttribute}
-                            onChange={(_: ChangeEvent<HTMLInputElement>, attribute: Attribute) => {
-                                onChange("config.identifier", attribute === null ? "" : attribute?.claimURI, resource);
+                            onChange={(_: SyntheticEvent, attribute: Attribute) => {
+                                updateConfig({
+                                    identifier: attribute === null ? "" : attribute?.claimURI,
+                                    identifierType: undefined
+                                });
                             }}
                         />
                     </Stack>
@@ -177,31 +326,47 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                         />
                         <Autocomplete
                             disablePortal
+                            freeSolo
+                            selectOnFocus
+                            handleHomeEndKeys
                             disabled={attributeType !== AttributeType.Organization}
                             key={`${resource.id}-org`}
-                            options={orgAttributes || []}
-                            loading={isOrgAttributesLoading}
-                            getOptionLabel={(attribute: OrganizationAttribute) => attribute?.displayName ?? ""}
+                            options={orgAttributes}
+                            filterOptions={filterOrgAttributes}
+                            getOptionLabel={(attribute: OrganizationAttribute | string) =>
+                                (typeof attribute === "string" ? attribute : attribute?.displayName ?? "")}
+                            renderOption={(props: HTMLAttributes<HTMLLIElement>, attribute: OrganizationAttribute) => {
+                                const isExistingOption: boolean = orgAttributes.some(
+                                    (option: OrganizationAttribute) => option.claimURI === attribute.claimURI
+                                );
+
+                                return (
+                                    <li {...props} key={attribute.claimURI}>
+                                        {isExistingOption
+                                            ? attribute.displayName
+                                            : `Add "${attribute.claimURI}"`}
+                                    </li>
+                                );
+                            }}
                             sx={{ width: "100%" }}
                             renderInput={(params: AutocompleteRenderInputParams) => (
                                 <TextField
                                     {...params}
-                                    placeholder={ "Select an attribute" }
-                                    error={attributeType === AttributeType.Organization && !!errorMessage}
+                                    placeholder={ "Select or add an attribute" }
+                                    error={attributeType === AttributeType.Organization
+                                        && (!!errorMessage || !!orgKeyError)}
                                 />
                             )}
                             value={selectedOrgAttribute}
-                            onChange={(_: ChangeEvent<HTMLInputElement>, attribute: OrganizationAttribute | null) => {
-                                onChange("config.identifier", attribute?.claimURI, resource);
-                            }}
+                            onChange={handleOrgAttributeChange}
                         />
                     </Stack>
                 </RadioGroup>
             </FormControl>
 
-            {errorMessage && (
+            {(errorMessage || orgKeyError) && (
                 <FormHelperText error>
-                    {errorMessage}
+                    {errorMessage || orgKeyError}
                 </FormHelperText>
             )}
 
