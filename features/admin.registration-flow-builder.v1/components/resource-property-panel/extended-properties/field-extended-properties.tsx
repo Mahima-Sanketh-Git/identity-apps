@@ -60,6 +60,27 @@ const orgAttributeFilter: (
 ) => OrganizationAttribute[] = createFilterOptions<OrganizationAttribute>();
 
 /**
+ * Append a synthetic entry for the typed text when it matches no existing option, so an
+ * admin can bind an attribute key this organization has not used before.
+ */
+const filterOrgAttributes = (
+    options: OrganizationAttribute[],
+    state: { inputValue: string }
+): OrganizationAttribute[] => {
+    const filtered: OrganizationAttribute[] = orgAttributeFilter(options, state);
+    const typedKey: string = state.inputValue.trim();
+    const alreadyOffered: boolean = options.some(
+        (attribute: OrganizationAttribute) => attribute.claimURI === typedKey
+    );
+
+    if (typedKey && !alreadyOffered) {
+        filtered.push({ claimURI: typedKey, displayName: typedKey });
+    }
+
+    return filtered;
+};
+
+/**
  * Extended properties for the field elements.
  *
  * Renders an "Attribute" section with:
@@ -196,27 +217,6 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
         });
 
         onChange("config", updated, resource);
-    };
-
-    /**
-     * Append a synthetic entry for the typed text when it matches no existing option, so an
-     * admin can bind an attribute key this organization has not used before.
-     */
-    const filterOrgAttributes = (
-        options: OrganizationAttribute[],
-        state: { inputValue: string }
-    ): OrganizationAttribute[] => {
-        const filtered: OrganizationAttribute[] = orgAttributeFilter(options, state);
-        const typedKey: string = state.inputValue.trim();
-        const alreadyOffered: boolean = options.some(
-            (attribute: OrganizationAttribute) => attribute.claimURI === typedKey
-        );
-
-        if (typedKey && !alreadyOffered) {
-            filtered.push({ claimURI: typedKey, displayName: typedKey });
-        }
-
-        return filtered;
     };
 
     /**
