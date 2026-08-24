@@ -18,5 +18,4 @@
 
 export * from "./organization";
 export * from "./organization-role";
-export * from "./use-get-organization-attributes";
 
