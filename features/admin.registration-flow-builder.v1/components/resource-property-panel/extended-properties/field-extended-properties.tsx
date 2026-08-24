@@ -60,9 +60,9 @@ const orgAttributeFilter: (
 ) => OrganizationAttribute[] = createFilterOptions<OrganizationAttribute>();
 
 /**
- * Append a synthetic entry for the typed text when it matches no existing option, so an
- * admin can bind an attribute key this organization has not used before.
- */
+* Append a synthetic entry for the typed text when it matches no existing option, so an
+* admin can bind an attribute key this organization has not used before.
+*/
 const filterOrgAttributes = (
     options: OrganizationAttribute[],
     state: { inputValue: string }
