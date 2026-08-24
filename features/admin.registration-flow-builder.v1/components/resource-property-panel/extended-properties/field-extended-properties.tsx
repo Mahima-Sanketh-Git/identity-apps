@@ -60,6 +60,27 @@ const orgAttributeFilter: (
 ) => OrganizationAttribute[] = createFilterOptions<OrganizationAttribute>();
 
 /**
+* Append a synthetic entry for the typed text when it matches no existing option, so an
+* admin can bind an attribute key this organization has not used before.
+*/
+const filterOrgAttributes = (
+    options: OrganizationAttribute[],
+    state: { inputValue: string }
+): OrganizationAttribute[] => {
+    const filtered: OrganizationAttribute[] = orgAttributeFilter(options, state);
+    const typedKey: string = state.inputValue.trim();
+    const alreadyOffered: boolean = options.some(
+        (attribute: OrganizationAttribute) => attribute.claimURI === typedKey
+    );
+
+    if (typedKey && !alreadyOffered) {
+        filtered.push({ claimURI: typedKey, displayName: typedKey });
+    }
+
+    return filtered;
+};
+
+/**
  * Extended properties for the field elements.
  *
  * Renders an "Attribute" section with:
@@ -81,14 +102,10 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     const { supportedAttributes: userAttributes } = useRegistrationFlowBuilder();
     const { selectedNotification } = useValidationStatus();
 
-    /**
-     * Error shown when a typed custom attribute key is rejected.
-     */
     const [ orgKeyError, setOrgKeyError ] = useState<string>("");
 
-    /**
-     * Default attribute type is always USER on mount.
-     */
+    const [ addedOrgAttribute, setAddedOrgAttribute ] = useState<OrganizationAttribute>(null);
+
     const [ attributeType, setAttributeType ] = useState<AttributeType>(resource.config.identifierType
         || AttributeType.User);
 
@@ -99,7 +116,7 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
         if(resource.config.identifierType){
             setAttributeType(resource.config.identifierType);
         }
-    }, [ resource.config.identifierType ]);
+    }, [ resource.config ]);
 
     /**
      * Resolve the currently selected user attribute from the resource config.
@@ -120,7 +137,7 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
      * keeps the option list in step with the flow definition on every render — including the
      * first render after reopening a saved flow — so no separate rehydration step is needed.
      */
-    const customOrgAttribute: OrganizationAttribute = useMemo(() => {
+    const boundOrgAttribute: OrganizationAttribute = useMemo(() => {
         const identifier: string = resource.config.identifier;
 
         if (attributeType !== AttributeType.Organization || !identifier) {
@@ -131,12 +148,6 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
             (attribute: OrganizationAttribute) => attribute.claimURI === identifier
         );
 
-        // An identifier that cannot be a valid organization attribute key is not one. This is
-        // reached whenever the type is switched away from User: the radio applies on the next
-        // render while the config write is debounced, so for that window the identifier still
-        // holds the previous user claim URI. Without this guard that URI would be offered as a
-        // custom organization attribute. It also protects flows published before the identifier
-        // was cleared on type switch.
         if (isCore || !OrganizationAttributeConstants.KEY_PATTERN.test(identifier)) {
             return null;
         }
@@ -145,17 +156,22 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     }, [ resource.config.identifier, attributeType ]);
 
     /**
-     * Options offered by the organization attribute selector — the core attributes plus the
-     * custom key bound to this field, so a custom key renders as a selected option rather
-     * than a loose value.
+     * Options offered by the organization attribute selector: the core attributes, the key added
+     * while this panel has been open, and the key the saved flow already binds. Deduplicated by
+     * `claimURI`, so a key that is both added and bound is offered once.
      */
-    const orgAttributes: OrganizationAttribute[] = useMemo(
-        () => (
-            customOrgAttribute
-                ? [ ...OrganizationAttributeConstants.CORE_ATTRIBUTES, customOrgAttribute ]
-                : OrganizationAttributeConstants.CORE_ATTRIBUTES),
-        [ customOrgAttribute ]
-    );
+    const orgAttributes: OrganizationAttribute[] = useMemo(() => {
+        const options: OrganizationAttribute[] = [ ...OrganizationAttributeConstants.CORE_ATTRIBUTES ];
+
+        [ addedOrgAttribute, boundOrgAttribute ].forEach((attribute: OrganizationAttribute) => {
+            if (attribute
+                && !options.some((option: OrganizationAttribute) => option.claimURI === attribute.claimURI)) {
+                options.push(attribute);
+            }
+        });
+
+        return options;
+    }, [ addedOrgAttribute, boundOrgAttribute ]);
 
     /**
      * Resolve the currently selected org attribute from the resource config.
@@ -204,27 +220,6 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     };
 
     /**
-     * Append a synthetic entry for the typed text when it matches no existing option, so an
-     * admin can bind an attribute key this organization has not used before.
-     */
-    const filterOrgAttributes = (
-        options: OrganizationAttribute[],
-        state: { inputValue: string }
-    ): OrganizationAttribute[] => {
-        const filtered: OrganizationAttribute[] = orgAttributeFilter(options, state);
-        const typedKey: string = state.inputValue.trim();
-        const alreadyOffered: boolean = options.some(
-            (attribute: OrganizationAttribute) => attribute.claimURI === typedKey
-        );
-
-        if (typedKey && !alreadyOffered) {
-            filtered.push({ claimURI: typedKey, displayName: typedKey });
-        }
-
-        return filtered;
-    };
-
-    /**
      * Bind an organization attribute key to the field.
      *
      * Receives an option object when a row is picked, and a raw string when the admin types a
@@ -253,6 +248,18 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
         }
 
         setOrgKeyError("");
+
+        // Remember the key on both paths: picking the `Add "…"` row hands this handler an option
+        // object, while typing and committing hands it a raw string. Core keys are already in the
+        // option list, so storing one would render it twice.
+        const isCore: boolean = OrganizationAttributeConstants.CORE_ATTRIBUTES.some(
+            (attribute: OrganizationAttribute) => attribute.claimURI === key
+        );
+
+        if (!isCore) {
+            setAddedOrgAttribute({ claimURI: key, displayName: key });
+        }
+
         updateConfig({ identifier: key, identifierType: AttributeType.Organization });
     };
 
@@ -329,6 +336,8 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                             freeSolo
                             selectOnFocus
                             handleHomeEndKeys
+                            autoSelect
+                            clearOnBlur
                             disabled={attributeType !== AttributeType.Organization}
                             key={`${resource.id}-org`}
                             options={orgAttributes}
