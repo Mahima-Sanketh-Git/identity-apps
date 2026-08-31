@@ -38,6 +38,9 @@ import React, {
 import { useTranslation } from "react-i18next";
 import { ReactComponent as LockIcon } from "../../resources/assets/images/icons/lock.svg";
 import AddClaimModal from "./add-claim-modal";
+import AddOrganizationAttributeModal from "./add-organization-attribute-modal";
+import { OrganizationAttributeEntryInterface } from "./organization-attributes";
+import { OrganizationContextConstants } from "../../constants/organization-context-constants";
 import FlowContextTreeNode from "./flow-context-tree-node";
 import {
     AddEntryModalStateInterface,
@@ -67,6 +70,16 @@ import {
  */
 const isClaimContainer = (node: TreeNodeStateInterface): boolean =>
     node.path.replace(/\/+$/, "") === "/user/claims";
+
+/**
+ * Whether a node is the organization attributes container, whose dynamic entries are attribute
+ * keys either collected by the published flow or typed by hand.
+ *
+ * @param node - Tree node to test.
+ * @returns `true` when the node is the organization attributes container.
+ */
+const isOrganizationAttributesContainer = (node: TreeNodeStateInterface): boolean =>
+    node.path.replace(/\/+$/, "") === OrganizationContextConstants.ORGANIZATION_ATTRIBUTES_PATH;
 
 /**
  * Container of the encryption configuration card. The `disabled` class dims the
@@ -383,12 +396,20 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
     readOnly,
     hasCertificate,
     allowReadOnlyClaimsModification = true,
+    organizationAttributeOptions = [],
     "data-componentid": componentId = "flow-context-tree"
 }: FlowContextTreePropsInterface): ReactElement => {
 
     const [ allClaims, setAllClaims ] = useState<Claim[]>([]);
 
-    const claimDisplayNames: Map<string, string> = useMemo(() => {
+    /**
+     * Display names for dynamic entries, keyed by the last segment of their path — claim URIs for
+     * the claims container, attribute keys for the organization one.
+     *
+     * An access config stores paths only, so an entry restored on reload has nothing but its key
+     * to be named after. Without this it would render as `orgTaxId` rather than `Tax ID`.
+     */
+    const displayNames: Map<string, string> = useMemo(() => {
         const map: Map<string, string> = new Map();
 
         allClaims.forEach((c: Claim) => {
@@ -397,8 +418,14 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
             }
         });
 
+        organizationAttributeOptions.forEach((attribute: OrganizationAttributeEntryInterface) => {
+            if (attribute.key && attribute.label) {
+                map.set(attribute.key, attribute.label);
+            }
+        });
+
         return map;
-    }, [ allClaims ]);
+    }, [ allClaims, organizationAttributeOptions ]);
 
     const claimReadOnlyMap: Map<string, boolean> = useMemo(() => {
         const map: Map<string, boolean> = new Map();
@@ -424,6 +451,11 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
     const [ selectedKey, setSelectedKey ] = useState<string | null>(null);
 
     const [ claimModal, setClaimModal ] = useState<AddEntryModalStateInterface>({
+        open: false,
+        parentNode: null
+    });
+
+    const [ orgAttributeModal, setOrgAttributeModal ] = useState<AddEntryModalStateInterface>({
         open: false,
         parentNode: null
     });
@@ -466,13 +498,13 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
     useEffect(() => {
         setTree(
             initialAccessConfig
-                ? mapMetadataToStateWithAccessConfig(contextTree, initialAccessConfig, claimDisplayNames, {
+                ? mapMetadataToStateWithAccessConfig(contextTree, initialAccessConfig, displayNames, {
                     allowReadOnlyClaimsModification,
                     claimReadOnlyMap
                 })
                 : mapMetadataToState(contextTree)
         );
-    }, [ contextTree, initialAccessConfig, claimDisplayNames, claimReadOnlyMap, allowReadOnlyClaimsModification ]);
+    }, [ contextTree, initialAccessConfig, displayNames, claimReadOnlyMap, allowReadOnlyClaimsModification ]);
 
     // Default-select the first leaf once the tree is populated, and re-target if
     // the current selection no longer resolves (e.g. after a delete).
@@ -539,7 +571,58 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
     const handleAddChild = useCallback((node: TreeNodeStateInterface): void => {
         if (isClaimContainer(node)) {
             setClaimModal({ open: true, parentNode: node });
+        } else if (isOrganizationAttributesContainer(node)) {
+            setOrgAttributeModal({ open: true, parentNode: node });
         }
+    }, []);
+
+    const handleOrgAttributeModalSubmit: (
+        _attributes: OrganizationAttributeEntryInterface[]
+    ) => void = useCallback((attributes: OrganizationAttributeEntryInterface[]): void => {
+        const { parentNode } = orgAttributeModal;
+
+        if (!parentNode) return;
+
+        setTree((prev: TreeNodeStateInterface[]) => {
+            let updated: TreeNodeStateInterface[] = prev;
+
+            attributes.forEach((attribute: OrganizationAttributeEntryInterface, idx: number) => {
+                // Attributes marked read-only are exposed but never written back. The flag is
+                // honoured only while the flow type disallows modifying read-only entries;
+                // when it allows them, every attribute is treated as writable.
+                const treatAsReadOnly: boolean = !!attribute.readOnly && !allowReadOnlyClaimsModification;
+                const allowedOps: string[] = treatAsReadOnly
+                    ? [ "EXPOSE" ]
+                    : [ "EXPOSE", "MODIFY" ];
+                const newEntry: TreeNodeStateInterface = {
+                    allowedOperations: allowedOps,
+                    canDelete: true,
+                    children: undefined,
+                    dataType: "String",
+                    dynamicEntryAllowed: false,
+                    dynamicEntryType: "",
+                    exposeEncrypted: false,
+                    exposed: false,
+                    key: `org-attribute-${Date.now()}-${idx}`,
+                    modify: false,
+                    modifyEncrypted: false,
+                    nodeType: NodeType.LEAF,
+                    path: `${parentNode.path.replace(/\/+$/, "")}/${attribute.key}`,
+                    readOnly: treatAsReadOnly,
+                    replaceable: false,
+                    title: attribute.label
+                };
+
+                updated = addChild(updated, parentNode.key, newEntry);
+            });
+
+            return updated;
+        });
+        setOrgAttributeModal({ open: false, parentNode: null });
+    }, [ orgAttributeModal ]);
+
+    const handleOrgAttributeModalClose: () => void = useCallback((): void => {
+        setOrgAttributeModal({ open: false, parentNode: null });
     }, []);
 
     const handleClaimModalSubmit = useCallback((claims: Claim[]): void => {
@@ -643,6 +726,19 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
                     />
                 </Box>
             </Box>
+
+            <AddOrganizationAttributeModal
+                open={ orgAttributeModal.open }
+                attributeOptions={ organizationAttributeOptions }
+                existingKeys={
+                    orgAttributeModal.parentNode?.children?.map(
+                        (child: TreeNodeStateInterface) => child.path.split("/").pop()
+                    ) || []
+                }
+                onClose={ handleOrgAttributeModalClose }
+                onSubmit={ handleOrgAttributeModalSubmit }
+                data-componentid={ `${componentId}-add-organization-attribute-modal` }
+            />
 
             <AddClaimModal
                 open={ claimModal.open }
