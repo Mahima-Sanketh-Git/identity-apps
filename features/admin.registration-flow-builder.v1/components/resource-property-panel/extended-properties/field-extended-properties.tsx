@@ -16,7 +16,11 @@
  * under the License.
  */
 
-import Autocomplete, { AutocompleteRenderInputParams, createFilterOptions } from "@oxygen-ui/react/Autocomplete";
+import Autocomplete, { AutocompleteRenderInputParams } from "@oxygen-ui/react/Autocomplete";
+import Box from "@oxygen-ui/react/Box";
+import Button from "@oxygen-ui/react/Button";
+import Chip from "@oxygen-ui/react/Chip";
+import IconButton from "@oxygen-ui/react/IconButton";
 import FormControl from "@oxygen-ui/react/FormControl";
 import FormControlLabel from "@oxygen-ui/react/FormControlLabel";
 import FormHelperText from "@oxygen-ui/react/FormHelperText";
@@ -24,7 +28,9 @@ import Radio from "@oxygen-ui/react/Radio";
 import RadioGroup from "@oxygen-ui/react/RadioGroup";
 import Stack from "@oxygen-ui/react/Stack";
 import TextField from "@oxygen-ui/react/TextField";
+import Tooltip from "@oxygen-ui/react/Tooltip";
 import Typography from "@oxygen-ui/react/Typography";
+import { PenToSquareIcon, PlusIcon, TrashIcon } from "@oxygen-ui/react-icons";
 import {
     CommonResourcePropertiesPropsInterface
 } from "@wso2is/admin.flow-builder-core.v1/components/resource-property-panel/resource-properties";
@@ -41,44 +47,17 @@ import React, {
     useMemo,
     useState
 } from "react";
+import DefineOrganizationAttributeModal from "./define-organization-attribute-modal";
 import OrganizationAttributeConstants from "../../../constants/organization-attribute-constants";
 import useRegistrationFlowBuilder from "../../../hooks/use-registration-flow-builder";
 import { Attribute, AttributeType, OrganizationAttribute } from "../../../models/attributes";
+import "./field-extended-properties.scss";
 
 /**
  * Props interface of {@link FieldExtendedProperties}
  */
 type FieldExtendedPropertiesPropsInterface = CommonResourcePropertiesPropsInterface &
     IdentifiableComponentInterface;
-
-/**
- * Default substring matcher for the organization attribute selector.
- */
-const orgAttributeFilter: (
-    _options: OrganizationAttribute[],
-    _state: { inputValue: string }
-) => OrganizationAttribute[] = createFilterOptions<OrganizationAttribute>();
-
-/**
-* Append a synthetic entry for the typed text when it matches no existing option, so an
-* admin can bind an attribute key this organization has not used before.
-*/
-const filterOrgAttributes = (
-    options: OrganizationAttribute[],
-    state: { inputValue: string }
-): OrganizationAttribute[] => {
-    const filtered: OrganizationAttribute[] = orgAttributeFilter(options, state);
-    const typedKey: string = state.inputValue.trim();
-    const alreadyOffered: boolean = options.some(
-        (attribute: OrganizationAttribute) => attribute.claimURI === typedKey
-    );
-
-    if (typedKey && !alreadyOffered) {
-        filtered.push({ claimURI: typedKey, displayName: typedKey });
-    }
-
-    return filtered;
-};
 
 /**
  * Extended properties for the field elements.
@@ -105,6 +84,10 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     const [ orgKeyError, setOrgKeyError ] = useState<string>("");
 
     const [ addedOrgAttribute, setAddedOrgAttribute ] = useState<OrganizationAttribute>(null);
+
+    const [ isDefineModalOpen, setIsDefineModalOpen ] = useState<boolean>(false);
+
+    const [ editingOrgAttribute, setEditingOrgAttribute ] = useState<OrganizationAttribute>(null);
 
     const [ attributeType, setAttributeType ] = useState<AttributeType>(resource.config.identifierType
         || AttributeType.User);
@@ -152,8 +135,10 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
             return null;
         }
 
-        return { claimURI: identifier, displayName: identifier };
-    }, [ resource.config.identifier, attributeType ]);
+        // The attribute's display name is the field's own label — defining an attribute sets it,
+        // so it round-trips without a config key of its own.
+        return { claimURI: identifier, displayName: resource.config.label || identifier };
+    }, [ resource.config.identifier, resource.config.label, attributeType ]);
 
     /**
      * Options offered by the organization attribute selector: the core attributes, the key added
@@ -196,6 +181,21 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
 
         return "";
     }, [ resource, selectedNotification ]);
+
+    /**
+     * The custom attribute bound to this field, whether defined in this panel or restored from
+     * the saved flow.
+     */
+    const customOrgAttribute: OrganizationAttribute = addedOrgAttribute ?? boundOrgAttribute;
+
+    /**
+     * Whether an option is the custom attribute rather than one of the built-in ones.
+     *
+     * @param attribute - Option being rendered.
+     * @returns `true` when the option is the custom attribute.
+     */
+    const isCustomOrgAttribute = (attribute: OrganizationAttribute): boolean =>
+        !!customOrgAttribute && attribute?.claimURI === customOrgAttribute.claimURI;
 
     /**
      * Write the whole `config` object in a single `onChange` call.
@@ -263,6 +263,50 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
         updateConfig({ identifier: key, identifierType: AttributeType.Organization });
     };
 
+    const handleDefineCustomAttribute = (): void => {
+        setEditingOrgAttribute(null);
+        setIsDefineModalOpen(true);
+    };
+
+    const handleEditCustomAttribute = (): void => {
+        setEditingOrgAttribute(customOrgAttribute);
+        setIsDefineModalOpen(true);
+    };
+
+    const handleDefineModalClose = (): void => {
+        setIsDefineModalOpen(false);
+        setEditingOrgAttribute(null);
+    };
+
+    /**
+     * Accept the defined attribute, offer it in the selector and bind it to the field.
+     */
+    const handleDefineModalSubmit = (attribute: OrganizationAttribute): void => {
+        setAddedOrgAttribute(attribute);
+        setOrgKeyError("");
+        setIsDefineModalOpen(false);
+        setEditingOrgAttribute(null);
+        updateConfig({
+            identifier: attribute.claimURI,
+            identifierType: AttributeType.Organization,
+            label: attribute.displayName
+        });
+    };
+
+    /**
+     * Drop the custom attribute, clearing the binding when the field is still using it.
+     */
+    const handleRemoveCustomAttribute = (): void => {
+        const wasBound: boolean = resource.config.identifier === customOrgAttribute?.claimURI;
+
+        setAddedOrgAttribute(null);
+        setOrgKeyError("");
+
+        if (wasBound) {
+            updateConfig({ identifier: "", identifierType: undefined });
+        }
+    };
+
     /**
      * Handle attribute type radio change.
      * Clears the currently stored identifier whenever the type is switched.
@@ -284,7 +328,7 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
     }
 
     return (
-        <Stack spacing={1} data-componentid={componentId}>
+        <Stack spacing={1} className="field-extended-properties" data-componentid={componentId}>
 
             <Typography variant="body1" fontWeight={400}>
                 Attribute
@@ -333,35 +377,25 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                         />
                         <Autocomplete
                             disablePortal
-                            freeSolo
-                            selectOnFocus
-                            handleHomeEndKeys
-                            autoSelect
-                            clearOnBlur
                             disabled={attributeType !== AttributeType.Organization}
                             key={`${resource.id}-org`}
                             options={orgAttributes}
-                            filterOptions={filterOrgAttributes}
-                            getOptionLabel={(attribute: OrganizationAttribute | string) =>
-                                (typeof attribute === "string" ? attribute : attribute?.displayName ?? "")}
-                            renderOption={(props: HTMLAttributes<HTMLLIElement>, attribute: OrganizationAttribute) => {
-                                const isExistingOption: boolean = orgAttributes.some(
-                                    (option: OrganizationAttribute) => option.claimURI === attribute.claimURI
-                                );
-
-                                return (
-                                    <li {...props} key={attribute.claimURI}>
-                                        {isExistingOption
-                                            ? attribute.displayName
-                                            : `Add "${attribute.claimURI}"`}
-                                    </li>
-                                );
-                            }}
+                            getOptionLabel={(attribute: OrganizationAttribute) => attribute?.displayName ?? ""}
+                            renderOption={(props: HTMLAttributes<HTMLLIElement>, attribute: OrganizationAttribute) => (
+                                <li {...props} key={attribute.claimURI}>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        <span>{attribute.displayName}</span>
+                                        {isCustomOrgAttribute(attribute) && (
+                                            <Chip label="CUSTOM" size="small" variant="outlined"/>
+                                        )}
+                                    </Stack>
+                                </li>
+                            )}
                             sx={{ width: "100%" }}
                             renderInput={(params: AutocompleteRenderInputParams) => (
                                 <TextField
                                     {...params}
-                                    placeholder={ "Select or add an attribute" }
+                                    placeholder={ "Select an attribute" }
                                     error={attributeType === AttributeType.Organization
                                         && (!!errorMessage || !!orgKeyError)}
                                 />
@@ -369,6 +403,69 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                             value={selectedOrgAttribute}
                             onChange={handleOrgAttributeChange}
                         />
+
+                        {attributeType === AttributeType.Organization && (
+                            customOrgAttribute
+                                ? (
+                                    <>
+                                        <Box className="custom-attribute-summary">
+                                            <Box className="custom-attribute-details">
+                                                <Typography variant="caption" fontWeight={500}>
+                                                    {customOrgAttribute.displayName}
+                                                </Typography>
+                                                <Typography
+                                                    variant="caption"
+                                                    color="text.disabled"
+                                                    className="custom-attribute-identifier"
+                                                >
+                                                    {customOrgAttribute.claimURI}
+                                                </Typography>
+                                            </Box>
+                                            <Stack direction="row" spacing={0.5}>
+                                                <Tooltip title="Edit">
+                                                    <IconButton
+                                                        size="small"
+                                                        className="custom-attribute-action"
+                                                        onClick={handleEditCustomAttribute}
+                                                        data-componentid={
+                                                            `${componentId}-edit-custom-attribute`
+                                                        }
+                                                    >
+                                                        <PenToSquareIcon size={14} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Remove">
+                                                    <IconButton
+                                                        size="small"
+                                                        className="custom-attribute-action"
+                                                        onClick={handleRemoveCustomAttribute}
+                                                        data-componentid={
+                                                            `${componentId}-remove-custom-attribute`
+                                                        }
+                                                    >
+                                                        <TrashIcon size={14} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Stack>
+                                        </Box>
+                                        <Typography variant="caption" color="text.disabled">
+                                            One custom attribute per property. Edit to change it.
+                                        </Typography>
+                                    </>
+                                )
+                                : (
+                                    <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        startIcon={<PlusIcon />}
+                                        onClick={handleDefineCustomAttribute}
+                                        className="define-custom-attribute-button"
+                                        data-componentid={`${componentId}-define-custom-attribute`}
+                                    >
+                                        Define custom attribute
+                                    </Button>
+                                )
+                        )}
                     </Stack>
                 </RadioGroup>
             </FormControl>
@@ -378,6 +475,14 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
                     {errorMessage || orgKeyError}
                 </FormHelperText>
             )}
+
+            <DefineOrganizationAttributeModal
+                open={isDefineModalOpen}
+                attribute={editingOrgAttribute}
+                onClose={handleDefineModalClose}
+                onSubmit={handleDefineModalSubmit}
+                data-componentid={`${componentId}-define-modal`}
+            />
 
         </Stack>
     );
