@@ -47,6 +47,14 @@ class OrganizationAttributeConstants {
     public static readonly KEY_PATTERN: RegExp = /^[a-zA-Z][a-zA-Z0-9_]*$/;
 
     /**
+     * Identifier of the organization name field.
+     *
+     * An organization cannot be created without a name, so its presence in a flow is what marks
+     * the flow as an organization onboarding flow.
+     */
+    public static readonly ORGANIZATION_NAME_IDENTIFIER: string = "organizationName";
+
+    /**
      * Core organization attributes offered by the attribute selector.
      *
      * `organizationHandle` is deliberately absent — the dedicated `ORG_HANDLE` input variant
@@ -54,7 +62,7 @@ class OrganizationAttributeConstants {
      */
     public static readonly CORE_ATTRIBUTES: OrganizationAttribute[] = [
         {
-            claimURI: "organizationName",
+            claimURI: OrganizationAttributeConstants.ORGANIZATION_NAME_IDENTIFIER,
             dataType: "STRING",
             description: "Name of the organization",
             displayName: "Organization Name",
