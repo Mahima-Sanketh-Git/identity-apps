@@ -318,6 +318,9 @@ export interface flowsNS {
                     actionId: string;
                 };
             };
+            organizationAttributes: {
+                missingOrganizationName: string;
+            };
             userResolveExecutorFields: {
                 message: string;
                 messageWithUserIdentifier: string;

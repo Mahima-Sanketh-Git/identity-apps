@@ -315,6 +315,11 @@ export const flows: flowsNS = {
                     variant: "Typography must have a variant defined for proper text styling."
                 }
             },
+            organizationAttributes: {
+                missingOrganizationName: "This flow collects organization attributes but no Organization "
+                    + "Name, which is required to create an organization. Add an Organization Name field, "
+                    + "or these values will be discarded at runtime."
+            },
             userResolveExecutorFields: {
                 message: "Forms with a 'Resolve User' action can only contain a text input field mapped to Username.",
                 messageWithUserIdentifier: "Forms with a 'Resolve User' action can only contain text input fields mapped to Username or User Identifier."
