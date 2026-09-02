@@ -42,6 +42,14 @@ class RegistrationFlowExecutorConstants {
     public static readonly GOOGLE_EXECUTOR: string = "GoogleExecutor";
 
     public static readonly MAGIC_LINK_EXECUTOR: string = "MagicLinkExecutor";
+
+    public static readonly USER_PROVISIONING_EXECUTOR: string = "UserProvisioningExecutor";
+
+    /**
+     * Swapped onto the END step in place of `USER_PROVISIONING_EXECUTOR` when the flow collects an
+     * organization name. Provisions the user first, then the organization.
+     */
+    public static readonly PROVISIONING_DISPATCH_EXECUTOR: string = "ProvisioningDispatchExecutor";
 }
 
 export default RegistrationFlowExecutorConstants;
