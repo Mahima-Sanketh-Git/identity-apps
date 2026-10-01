@@ -34,12 +34,16 @@ import { CommonResourcePropertiesPropsInterface } from
 import useAuthenticationFlowBuilderCore from
     "@wso2is/admin.flow-builder-core.v1/hooks/use-authentication-flow-builder-core-context";
 import { FlowCompletionConfigsInterface } from "@wso2is/admin.flow-builder-core.v1/models/flows";
+import { StepData } from "@wso2is/admin.flow-builder-core.v1/models/steps";
 import { FlowTypes } from "@wso2is/admin.flows.v1/models/flows";
 import { FeatureAccessConfigInterface, IdentifiableComponentInterface } from "@wso2is/core/models";
+import { Node, useNodesData, useReactFlow } from "@xyflow/react";
 import isEmpty from "lodash-es/isEmpty";
+import omit from "lodash-es/omit";
 import React, { ChangeEvent, FunctionComponent, ReactElement } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
+import RegistrationFlowExecutorConstants from "../../../../constants/registration-flow-executor-constants";
 
 /**
  * Props interface of {@link FlowCompletionProperties}
@@ -57,8 +61,45 @@ const FlowCompletionProperties: FunctionComponent<FlowCompletionPropertiesPropsI
     ["data-componentid"]: componentId = "flow-completion-properties-component"
 }: FlowCompletionPropertiesPropsInterface): ReactElement => {
     const { t } = useTranslation();
-    const { flowCompletionConfigs, setFlowCompletionConfigs, metadata } = useAuthenticationFlowBuilderCore();
+    const { flowCompletionConfigs, setFlowCompletionConfigs, metadata, lastInteractedStepId } =
+        useAuthenticationFlowBuilderCore();
     const { data: registrationFlowConfig } = useGetFlowConfig(FlowTypes.REGISTRATION);
+    const { updateNodeData } = useReactFlow();
+    const endStep: Pick<Node, "data"> = useNodesData(lastInteractedStepId);
+
+    const executorName: string = (endStep?.data as StepData)?.action?.executor?.name;
+    const provisionTarget: unknown = (endStep?.data as StepData)?.action?.executor?.meta?.[
+        RegistrationFlowExecutorConstants.PROVISION_TARGET_KEY
+    ];
+
+    /**
+     * Writes the provision target onto the END step's executor. The key is removed when unchecked, so a
+     * flow that does not target the new organization carries no provision target at all.
+     */
+    const handleProvisionTargetChange = (event: ChangeEvent<HTMLInputElement>): void => {
+        const provisionInNewOrganization: boolean = event.target.checked;
+
+        updateNodeData(lastInteractedStepId, (node: Node) => {
+            const action: Record<string, any> = (node?.data as StepData)?.action;
+            const meta: Record<string, unknown> = action?.executor?.meta || {};
+
+            return {
+                action: {
+                    ...action,
+                    executor: {
+                        ...action?.executor,
+                        meta: provisionInNewOrganization
+                            ? {
+                                ...meta,
+                                [RegistrationFlowExecutorConstants.PROVISION_TARGET_KEY]:
+                                    RegistrationFlowExecutorConstants.NEW_ORGANIZATION_PROVISION_TARGET
+                            }
+                            : omit(meta, RegistrationFlowExecutorConstants.PROVISION_TARGET_KEY)
+                    }
+                }
+            };
+        });
+    };
 
     const approvalFeatureConfig: FeatureAccessConfigInterface = useSelector(
         (state: AppState) => state?.config?.ui?.features?.approvalWorkflows
@@ -219,6 +260,25 @@ const FlowCompletionProperties: FunctionComponent<FlowCompletionPropertiesPropsI
                         />
                         <FormHelperText>
                             { t("flows:registrationFlow.steps.end.accountFlowCompletion.hint") }
+                        </FormHelperText>
+                    </Box>
+                ) }
+                { executorName === RegistrationFlowExecutorConstants.PROVISIONING_DISPATCH_EXECUTOR && (
+                    <Box data-componentid={ `${componentId}-provision-target` }>
+                        <FormControlLabel
+                            label={ t("flows:registrationFlow.steps.end.provisionTarget.label") }
+                            control={
+                                (<Checkbox
+                                    checked={
+                                        provisionTarget ===
+                                            RegistrationFlowExecutorConstants.NEW_ORGANIZATION_PROVISION_TARGET
+                                    }
+                                    onChange={ handleProvisionTargetChange }
+                                />)
+                            }
+                        />
+                        <FormHelperText>
+                            { t("flows:registrationFlow.steps.end.provisionTarget.hint") }
                         </FormHelperText>
                     </Box>
                 ) }
