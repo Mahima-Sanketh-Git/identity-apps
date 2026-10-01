@@ -50,6 +50,18 @@ class RegistrationFlowExecutorConstants {
      * organization name. Provisions the user first, then the organization.
      */
     public static readonly PROVISIONING_DISPATCH_EXECUTOR: string = "ProvisioningDispatchExecutor";
+
+    /**
+     * Executor config key read by `ProvisioningDispatchExecutor` to decide where the user is
+     * provisioned.
+     */
+    public static readonly PROVISION_TARGET_KEY: string = "provisionTarget";
+
+    /**
+     * Value of {@link PROVISION_TARGET_KEY} that provisions the user inside the organization the flow
+     * creates. Absent means the user is provisioned in the organization the flow is executing in.
+     */
+    public static readonly NEW_ORGANIZATION_PROVISION_TARGET: string = "NEW_ORGANIZATION";
 }
 
 export default RegistrationFlowExecutorConstants;

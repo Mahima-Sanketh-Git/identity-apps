@@ -431,7 +431,12 @@ export const flows: flowsNS = {
                     hint: "Immediately log the user in once the flow is completed, without additional steps.",
                     label: "Auto Login"
                 },
-                description: "The <1>End Screen</1> defines what happens once the flow is completed. It allows you to control the user's final experience by selecting one of the following outcomes:"
+                description: "The <1>End Screen</1> defines what happens once the flow is completed. It allows you to control the user's final experience by selecting one of the following outcomes:",
+                provisionTarget: {
+                    hint: "Create the user inside the organization this flow creates, instead of the "
+                        + "organization the flow is running in.",
+                    label: "Onboard the user to the new organization"
+                }
             }
         }
     }

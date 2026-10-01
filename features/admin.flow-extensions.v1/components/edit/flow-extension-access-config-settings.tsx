@@ -130,13 +130,11 @@ const FlowExtensionAccessConfigSettings: FunctionComponent<FlowExtensionAccessCo
     );
 
     /**
-     * Options offered when adding an entry to the attributes container: the fields every
-     * organization carries, followed by the custom keys the published flow collects. The scan
-     * drops core identifiers, so the two lists cannot collide.
+     * Options offered when adding an entry to the attributes container from the custom keys the
+     * published flow collects. Core organization fields are available at their top-level paths.
      */
     const organizationAttributes: OrganizationAttributeEntryInterface[] = useMemo(
         () => [
-            ...OrganizationContextConstants.CORE_ATTRIBUTE_OPTIONS,
             ...extractOrganizationAttributes(publishedFlow)
         ],
         [ publishedFlow ]

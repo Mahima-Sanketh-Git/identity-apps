@@ -429,6 +429,10 @@ export interface flowsNS {
                     label: string;
                     hint: string;
                 };
+                provisionTarget: {
+                    label: string;
+                    hint: string;
+                };
             };
         };
     };
