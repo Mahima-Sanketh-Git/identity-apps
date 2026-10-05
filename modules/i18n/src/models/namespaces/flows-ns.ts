@@ -433,6 +433,13 @@ export interface flowsNS {
                     label: string;
                     hint: string;
                 };
+                organizationRoles: {
+                    label: string;
+                    placeholder: string;
+                    hint: string;
+                    fetchError: string;
+                    noPermission: string;
+                };
             };
         };
     };
