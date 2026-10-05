@@ -57,6 +57,8 @@ class RegistrationFlowExecutorConstants {
      */
     public static readonly PROVISION_TARGET_KEY: string = "provisionTarget";
 
+    public static readonly ROLE_IDS_KEY: string = "roleIds";
+
     /**
      * Value of {@link PROVISION_TARGET_KEY} that provisions the user inside the organization the flow
      * creates. Absent means the user is provisioned in the organization the flow is executing in.

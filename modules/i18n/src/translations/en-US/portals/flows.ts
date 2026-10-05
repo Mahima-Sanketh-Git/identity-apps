@@ -432,6 +432,15 @@ export const flows: flowsNS = {
                     label: "Auto Login"
                 },
                 description: "The <1>End Screen</1> defines what happens once the flow is completed. It allows you to control the user's final experience by selecting one of the following outcomes:",
+                organizationRoles: {
+                    fetchError: "Some roles could not be loaded. Your saved selections have been kept.",
+                    hint: "Assign these roles to the user in the new organization. Roles must be available through "
+                        + "the existing sharing settings. Unavailable roles are skipped and logged without "
+                        + "interrupting registration. The default selfsignup role is kept.",
+                    label: "Roles in the new organization (optional)",
+                    noPermission: "You need permission to read roles to configure this selection.",
+                    placeholder: "Search and select parent organization roles"
+                },
                 provisionTarget: {
                     hint: "Create the user inside the organization this flow creates, instead of the "
                         + "organization the flow is running in.",
