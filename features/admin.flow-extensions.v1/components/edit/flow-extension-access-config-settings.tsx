@@ -134,9 +134,7 @@ const FlowExtensionAccessConfigSettings: FunctionComponent<FlowExtensionAccessCo
      * published flow collects. Core organization fields are available at their top-level paths.
      */
     const organizationAttributes: OrganizationAttributeEntryInterface[] = useMemo(
-        () => [
-            ...extractOrganizationAttributes(publishedFlow)
-        ],
+        () => extractOrganizationAttributes(publishedFlow),
         [ publishedFlow ]
     );
 

@@ -47,9 +47,6 @@ const useOrganizationAttributeValidation = (): void => {
         OrganizationAttributeConstants.ORGANIZATION_NAME_IDENTIFIER
     );
 
-    /**
-     * Effect to handle organization attribute validation notifications.
-     */
     useEffect(() => {
         if (!hasOrganizationAttributes || hasOrganizationName) {
             removeNotification(NOTIFICATION_ID);
@@ -68,9 +65,6 @@ const useOrganizationAttributeValidation = (): void => {
         addNotification(notification);
     }, [ hasOrganizationAttributes, hasOrganizationName, t, addNotification, removeNotification ]);
 
-    /**
-     * Cleanup function to remove notifications on unmount.
-     */
     useEffect(() => {
         return () => {
             removeNotification(NOTIFICATION_ID);

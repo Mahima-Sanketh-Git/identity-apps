@@ -221,10 +221,6 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
 
     /**
      * Bind an organization attribute key to the field.
-     *
-     * Receives an option object when a row is picked, and a raw string when the admin types a
-     * key and presses Enter without picking one — `freeSolo` allows submitting text that was
-     * never an option, so both shapes must be handled.
      */
     const handleOrgAttributeChange = (
         _: SyntheticEvent,
@@ -249,9 +245,6 @@ const FieldExtendedProperties: FunctionComponent<FieldExtendedPropertiesPropsInt
 
         setOrgKeyError("");
 
-        // Remember the key on both paths: picking the `Add "…"` row hands this handler an option
-        // object, while typing and committing hands it a raw string. Core keys are already in the
-        // option list, so storing one would render it twice.
         const isCore: boolean = OrganizationAttributeConstants.CORE_ATTRIBUTES.some(
             (attribute: OrganizationAttribute) => attribute.claimURI === key
         );

@@ -17,6 +17,5 @@
 */
 
 export * from "./endpoints";
-export * from "./organization-attributes";
 export * from "./organizations";
 export * from "./permission";
