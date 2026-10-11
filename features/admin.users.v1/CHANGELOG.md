@@ -1,5 +1,66 @@
 # @wso2is/admin.users.v1
 
+## 2.38.56
+
+### Patch Changes
+
+- Updated dependencies [[`48bc2416dfc2a2e40699f1fd8e95ddd4893e0a11`](https://github.com/wso2/identity-apps/commit/48bc2416dfc2a2e40699f1fd8e95ddd4893e0a11)]:
+  - @wso2is/admin.core.v1@2.60.0
+  - @wso2is/admin.feature-gate.v1@1.11.0
+  - @wso2is/admin.flow-builder-core.v1@0.11.0
+  - @wso2is/admin.server-configurations.v1@2.39.0
+  - @wso2is/forms@2.12.0
+  - @wso2is/i18n@2.47.0
+  - @wso2is/admin.flows.v1@1.0.181
+
+## 2.38.55
+
+### Patch Changes
+
+- [#10723](https://github.com/wso2/identity-apps/pull/10723) [`a218d70a8b9bfe2f0ddbdab6c06ba3af393610fe`](https://github.com/wso2/identity-apps/commit/a218d70a8b9bfe2f0ddbdab6c06ba3af393610fe) Thanks [@JayaShakthi97](https://github.com/JayaShakthi97)! - Hide Enterprise schema attributes that duplicate core User or System schema attributes in user search, user profile and user creation in migrated environments
+
+- Updated dependencies [[`a218d70a8b9bfe2f0ddbdab6c06ba3af393610fe`](https://github.com/wso2/identity-apps/commit/a218d70a8b9bfe2f0ddbdab6c06ba3af393610fe), [`47e361c251f999f5bae3b776368dbcfc600d4b8e`](https://github.com/wso2/identity-apps/commit/47e361c251f999f5bae3b776368dbcfc600d4b8e), [`a291686630952bd31c1a6b605f31790ee99bd364`](https://github.com/wso2/identity-apps/commit/a291686630952bd31c1a6b605f31790ee99bd364)]:
+  - @wso2is/admin.claims.v1@2.31.6
+  - @wso2is/admin.extensions.v1@2.44.1
+  - @wso2is/i18n@2.46.3
+
+## 2.38.54
+
+### Patch Changes
+
+- [#10697](https://github.com/wso2/identity-apps/pull/10697) [`994927c01a532527e0271ffa16484f013978cd3e`](https://github.com/wso2/identity-apps/commit/994927c01a532527e0271ffa16484f013978cd3e) Thanks [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix the Shared Access role pickers showing "No roles available" until Save for organizations whose sharing policy has no roles
+
+- Updated dependencies [[`40557c5ac24c07c6c14b3e02e9041be42312f48d`](https://github.com/wso2/identity-apps/commit/40557c5ac24c07c6c14b3e02e9041be42312f48d)]:
+  - @wso2is/core@2.13.7
+  - @wso2is/react-components@2.10.6
+
+## 2.38.53
+
+### Patch Changes
+
+- [#10685](https://github.com/wso2/identity-apps/pull/10685) [`073b8cc835421f80288acb56750e2fe6e9bc610d`](https://github.com/wso2/identity-apps/commit/073b8cc835421f80288acb56750e2fe6e9bc610d) Thanks [@RushanNanayakkara](https://github.com/RushanNanayakkara)! - Paginate the group assignment list in the user Groups tab and show how many of the listed groups are selected
+
+- Updated dependencies [[`073b8cc835421f80288acb56750e2fe6e9bc610d`](https://github.com/wso2/identity-apps/commit/073b8cc835421f80288acb56750e2fe6e9bc610d)]:
+  - @wso2is/i18n@2.46.1
+
+## 2.38.52
+
+### Patch Changes
+
+- [#10649](https://github.com/wso2/identity-apps/pull/10649) [`eeeb0cdfe1f691260db1e7ace820bc044505be0c`](https://github.com/wso2/identity-apps/commit/eeeb0cdfe1f691260db1e7ace820bc044505be0c) Thanks [@sadilchamishka](https://github.com/sadilchamishka)! - Resolve the signed-in user id for the "Me" label from the ID token subject instead of the `scim2/Me` profile
+
+## 2.38.51
+
+### Patch Changes
+
+- [#10634](https://github.com/wso2/identity-apps/pull/10634) [`23177fb4312dc31459ec988dbba368436600dacc`](https://github.com/wso2/identity-apps/commit/23177fb4312dc31459ec988dbba368436600dacc) Thanks [@pavinduLakshan](https://github.com/pavinduLakshan)! - Fix duplicate user attributes being listed in the user attribute dropdown in the user filtering view
+
+## 2.38.50
+
+### Patch Changes
+
+- [#10596](https://github.com/wso2/identity-apps/pull/10596) [`c113928b8964fd2b81f66bacd92c3afe6de287b4`](https://github.com/wso2/identity-apps/commit/c113928b8964fd2b81f66bacd92c3afe6de287b4) Thanks [@raviendalpatadu](https://github.com/raviendalpatadu)! - Fix readOnly prop logic in ShareUserForm component
+
 ## 2.38.49
 
 ### Patch Changes

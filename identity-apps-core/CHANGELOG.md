@@ -1,5 +1,101 @@
 # @wso2is/identity-apps-core
 
+## 5.5.3
+
+### Patch Changes
+
+- [#10739](https://github.com/wso2/identity-apps/pull/10739) [`d82d0655ec8ec054ad454997d087a83807e029ed`](https://github.com/wso2/identity-apps/commit/d82d0655ec8ec054ad454997d087a83807e029ed) Thanks [@shashimalcse](https://github.com/shashimalcse)! - Use the server endpoint URLs resolved by init-url.jsp for wallet login status polling and form submission
+
+## 5.5.2
+
+### Patch Changes
+
+- [#10737](https://github.com/wso2/identity-apps/pull/10737) [`0975f164d234e5c80488d727ee283bf02535a4f8`](https://github.com/wso2/identity-apps/commit/0975f164d234e5c80488d727ee283bf02535a4f8) Thanks [@shashimalcse](https://github.com/shashimalcse)! - Use absolute server URLs for wallet login status polling and form submission so the flow works when the login page is served from a different host
+
+## 5.5.1
+
+### Patch Changes
+
+- [#10735](https://github.com/wso2/identity-apps/pull/10735) [`33f486601ed60ad1fa19f861bc8cbbfe240ce2d2`](https://github.com/wso2/identity-apps/commit/33f486601ed60ad1fa19f861bc8cbbfe240ce2d2) Thanks [@Zeta201](https://github.com/Zeta201)! - Add wallet SVG to accounts webapp for OpenID4VP self-registration flow
+
+## 5.5.0
+
+### Minor Changes
+
+- [#10615](https://github.com/wso2/identity-apps/pull/10615) [`48bc2416dfc2a2e40699f1fd8e95ddd4893e0a11`](https://github.com/wso2/identity-apps/commit/48bc2416dfc2a2e40699f1fd8e95ddd4893e0a11) Thanks [@Zeta201](https://github.com/Zeta201)! - Add UI implementation for OpenID4VP digital wallet authentication, including presentation definitions management, trusted issuer configuration, digital wallet connection wizard, and flow builder canvas support.
+
+### Patch Changes
+
+- Updated dependencies [[`48bc2416dfc2a2e40699f1fd8e95ddd4893e0a11`](https://github.com/wso2/identity-apps/commit/48bc2416dfc2a2e40699f1fd8e95ddd4893e0a11)]:
+  - @wso2is/theme@2.11.0
+
+## 5.4.10
+
+### Patch Changes
+
+- [#10709](https://github.com/wso2/identity-apps/pull/10709) [`d9b46a8e34c59bb245d5cbe5e45e3282cc2d7d68`](https://github.com/wso2/identity-apps/commit/d9b46a8e34c59bb245d5cbe5e45e3282cc2d7d68) Thanks [@ranuka-laksika](https://github.com/ranuka-laksika)! - Improve URL encoding of Create Account button in tenantauth.jsp
+
+## 5.4.9
+
+### Patch Changes
+
+- [#10695](https://github.com/wso2/identity-apps/pull/10695) [`09294633defca1ac01c3cbaad3512beb257b90f8`](https://github.com/wso2/identity-apps/commit/09294633defca1ac01c3cbaad3512beb257b90f8) Thanks [@DonOmalVindula](https://github.com/DonOmalVindula)! - Fix the null string comparison for the identifier first user input in login.jsp
+
+* [#10666](https://github.com/wso2/identity-apps/pull/10666) [`e1dc6682e201f8d63ffd3395deb3c40fc18a1aaf`](https://github.com/wso2/identity-apps/commit/e1dc6682e201f8d63ffd3395deb3c40fc18a1aaf) Thanks [@PulithThewmika](https://github.com/PulithThewmika)! - Fix string comparison in login.jsp — replace reference equality (`==`) with `.equals()` for the identifier-first username null check
+
+- [#10609](https://github.com/wso2/identity-apps/pull/10609) [`020c83fe2862421b6a1bc52c9443592fd2d746da`](https://github.com/wso2/identity-apps/commit/020c83fe2862421b6a1bc52c9443592fd2d746da) Thanks [@sanjulaonline](https://github.com/sanjulaonline)! - Remove obsolete absolute TOTP scripts.js references from authentication portal pages.
+
+* [#10693](https://github.com/wso2/identity-apps/pull/10693) [`2529dd02b3bde57d1f9c06fb9ca52b9a492c729e`](https://github.com/wso2/identity-apps/commit/2529dd02b3bde57d1f9c06fb9ca52b9a492c729e) Thanks [@shashimalcse](https://github.com/shashimalcse)! - Add a fallback link to the self registration completion page, and stop the auto login
+  redirect from firing while the page is hidden. A backgrounded browser cannot hand off to
+  the application, but the redirect still reaches `/commonauth` and consumes the single use
+  `sessionDataKey`, leaving the user stranded on the completion page with no way to continue.
+
+## 5.4.8
+
+### Patch Changes
+
+- [#10677](https://github.com/wso2/identity-apps/pull/10677) [`634dac71b9c53ba68be00cb620b13b78e9ab11ed`](https://github.com/wso2/identity-apps/commit/634dac71b9c53ba68be00cb620b13b78e9ab11ed) Thanks [@KaveeshaPiumini](https://github.com/KaveeshaPiumini)! - Add i18n entry for the invalid authenticator error status
+
+* [#10687](https://github.com/wso2/identity-apps/pull/10687) [`65beee4c814ca554fabbf6de871a2237e492e858`](https://github.com/wso2/identity-apps/commit/65beee4c814ca554fabbf6de871a2237e492e858) Thanks [@sadilchamishka](https://github.com/sadilchamishka)! - Remove redundant authorization header from HYPR and iProov login pages
+
+## 5.4.7
+
+### Patch Changes
+
+- [#10663](https://github.com/wso2/identity-apps/pull/10663) [`cfbe6717f703f0d8ff5d7b8572af29b45b398f08`](https://github.com/wso2/identity-apps/commit/cfbe6717f703f0d8ff5d7b8572af29b45b398f08) Thanks [@DilshanSenarath](https://github.com/DilshanSenarath)! - Fix the custom layout resolution for inherited application level branding
+
+## 5.4.6
+
+### Patch Changes
+
+- [#10664](https://github.com/wso2/identity-apps/pull/10664) [`bfba2cd0d5c0f036ef07425eacf9d92f9a68208f`](https://github.com/wso2/identity-apps/commit/bfba2cd0d5c0f036ef07425eacf9d92f9a68208f) Thanks [@sadilchamishka](https://github.com/sadilchamishka)! - Fix unhandled NullPointerException on the login page when the forwarded query string is absent
+
+## 5.4.5
+
+### Patch Changes
+
+- [#10632](https://github.com/wso2/identity-apps/pull/10632) [`355488702c9ba13fef484a252dbe19704f045e0c`](https://github.com/wso2/identity-apps/commit/355488702c9ba13fef484a252dbe19704f045e0c) Thanks [@RushanNanayakkara](https://github.com/RushanNanayakkara)! - Allow a date of birth validation error to be corrected on the missing claims page during federated login, instead of forwarding the user to a generic error page.
+
+* [#10631](https://github.com/wso2/identity-apps/pull/10631) [`720d3fbefa134ce14e02b3c13163fdb4ea78a621`](https://github.com/wso2/identity-apps/commit/720d3fbefa134ce14e02b3c13163fdb4ea78a621) Thanks [@RushanNanayakkara](https://github.com/RushanNanayakkara)! - Fix the registration form being unmounted when the date field holds a future date. The date input no longer caps the calendar at today, which was making a crash in the underlying picker reachable.
+
+## 5.4.4
+
+### Patch Changes
+
+- [#10623](https://github.com/wso2/identity-apps/pull/10623) [`5da5284d994e71fa95f680aac67b6f27b4a7cd63`](https://github.com/wso2/identity-apps/commit/5da5284d994e71fa95f680aac67b6f27b4a7cd63) Thanks [@ashanthamara](https://github.com/ashanthamara)! - Fix jsp message spacing issue
+
+## 5.4.3
+
+### Patch Changes
+
+- [#10624](https://github.com/wso2/identity-apps/pull/10624) [`274ac741303a1deeececf324250aa31bd98e949d`](https://github.com/wso2/identity-apps/commit/274ac741303a1deeececf324250aa31bd98e949d) Thanks [@sadilchamishka](https://github.com/sadilchamishka)! - Fix unhandled ClassCastException in authentication portal pages when accessed without prompt context
+
+## 5.4.2
+
+### Patch Changes
+
+- [#10617](https://github.com/wso2/identity-apps/pull/10617) [`3614e5bd14c654953fa09d189cf88c9211ef07c0`](https://github.com/wso2/identity-apps/commit/3614e5bd14c654953fa09d189cf88c9211ef07c0) Thanks [@sadilchamishka](https://github.com/sadilchamishka)! - Fix unhandled IllegalArgumentException on blank username in recovery portal
+
 ## 5.4.1
 
 ### Patch Changes

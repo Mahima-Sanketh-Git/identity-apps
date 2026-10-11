@@ -141,6 +141,11 @@ export interface FeatureConfigInterface {
      */
     certificates?: FeatureAccessConfigInterface;
     /**
+     * CLI settings feature. Gates the CLI Settings page which manages the CLI
+     * application and its user assignments.
+     */
+    cliSettings?: FeatureAccessConfigInterface;
+    /**
      * Console settings feature. Currently the only consumer is the console-roles permissions UI,
      * which reads the granular-console-permissions flag from its `disabledFeatures` list.
      */
@@ -201,6 +206,10 @@ export interface FeatureConfigInterface {
      * Parent User Invite Feature
      */
     parentUserInvitation?: FeatureAccessConfigInterface;
+    /**
+     * Connection sharing feature (share IdPs / connections with organizations).
+     */
+    connectionSharing?: FeatureAccessConfigInterface;
     /**
      * Identity provider management feature.
      */
@@ -353,6 +362,10 @@ export interface FeatureConfigInterface {
      * Customer Data Service feature.
      */
     customerDataService?: FeatureAccessConfigInterface;
+    /**
+     * Presentation definitions (VP template) management feature.
+     */
+    presentationDefinitions?: FeatureAccessConfigInterface;
 }
 
 /**
@@ -474,6 +487,24 @@ interface ActionsUIConfigInterface {
             }
         }
     }
+}
+
+/**
+ * CLI settings feature-specific properties.
+ *
+ * Configured under `cliSettings.properties` in the feature config. The CLI application
+ * name and client ID differ between Identity Server and Asgardeo, hence they are
+ * configurable per deployment.
+ */
+export interface CLISettingsPropertiesInterface {
+    /**
+     * Name of the application that backs the CLI tool.
+     */
+    applicationName?: string;
+    /**
+     * OAuth client ID of the CLI application.
+     */
+    clientId?: string;
 }
 
 /**
@@ -646,6 +677,11 @@ export interface UIConfigInterface extends CommonUIConfigInterface<FeatureConfig
      * Enable signature validation certificate alias.
      */
     isSignatureValidationCertificateAliasEnabled?: boolean;
+    /**
+     * Send applications whose custom claim dialect renames at least one attribute to the local dialect
+     * attribute selector. Off by default; the scope grouped selector keeps handling them unless this is on.
+     */
+    isCustomClaimDialectRoutingEnabled?: boolean;
     /**
      * Enable/Disable the custom claim mapping feature.
      */
@@ -929,6 +965,7 @@ export interface ServiceResourceEndpointsInterface extends AgentsResourceEndpoin
     ConsentMgtResourceEndpointsInterface {
 
     CORSOrigins: string;
+    presentationDefinitions: string;
     copilot: string;
     // TODO: Remove this endpoint and use ID token to get the details
     me: string;

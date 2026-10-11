@@ -34,6 +34,7 @@ import {
     UserGroupIcon,
     WebhookIcon
 } from "@oxygen-ui/react-icons";
+import { FeatureAccessConfigInterface } from "@wso2is/access-control";
 import {
     ReactComponent as ProfileAttributesIcon
 } from "@wso2is/admin.cds.v1/assets/images/icons/cds-profile-attributes.svg";
@@ -57,6 +58,9 @@ import keyBy from "lodash-es/keyBy";
 import merge from "lodash-es/merge";
 import values from "lodash-es/values";
 import React, { FunctionComponent, lazy } from "react";
+import {
+    ReactComponent as CLISettingsIcon
+} from "@wso2is/admin.cli-settings.v1/assets/images/icons/cli-settings-icon.svg";
 import AppLayout from "../layouts/app-layout";
 import AuthLayout from "../layouts/auth-layout";
 import DashboardLayout from "../layouts/dashboard-layout";
@@ -90,6 +94,17 @@ export const getAppViewRoutes = (): RouteInterface[] => {
         window["AppUtils"]?.getConfig()?.ui?.features?.pushProviders?.enabled;
     const isMcpServersFeatureEnabled: boolean =
         window["AppUtils"]?.getConfig()?.ui?.features?.mcpServers?.enabled;
+    // The CLI tool is only available when the feature is enabled and its application is
+    // configured (application name and client ID) via the `cliSettings` feature properties.
+    const cliSettingsFeatureConfig: FeatureAccessConfigInterface =
+        window["AppUtils"]?.getConfig()?.ui?.features?.cliSettings;
+    const isCLISettingsConfigurable: boolean =
+        !!cliSettingsFeatureConfig?.enabled
+        && !!cliSettingsFeatureConfig?.properties?.applicationName
+        && !!cliSettingsFeatureConfig?.properties?.clientId;
+
+    const isPresentationDefinitionsEnabled: boolean =
+        window["AppUtils"]?.getConfig()?.ui?.features?.presentationDefinitions?.enabled === true;
 
     const isInsightsFeatureEnabled: boolean =
         window["AppUtils"]?.getConfig()?.ui?.features?.insights?.enabled === true;
@@ -214,7 +229,7 @@ export const getAppViewRoutes = (): RouteInterface[] => {
                         import("@wso2is/admin.verifiable-credentials.v1/pages/vc-template-edit")),
                     exact: true,
                     id: "editVCTemplate",
-                    name: "Edit Verifiable Credential",
+                    name: "Edit Credential Template",
                     path: AppConstants.getPaths().get("VC_TEMPLATE_EDIT"),
                     protected: true,
                     showOnSidePanel: false
@@ -228,9 +243,48 @@ export const getAppViewRoutes = (): RouteInterface[] => {
                 icon: getSidePanelIcons().verifiableCredentials
             },
             id: "verifiableCredentials",
-            name: "Verifiable Credentials",
+            name: isPresentationDefinitionsEnabled ? "Credential Templates" : "Verifiable Credentials",
             order: 7,
             path: AppConstants.getPaths().get("VC_TEMPLATES"),
+            protected: true,
+            showOnSidePanel: true
+        },
+        {
+            children: [
+                {
+                    component: lazy(() =>
+                        import(
+                            "@wso2is/admin.presentation-definitions.v1/pages/presentation-definition-edit"
+                        )),
+                    exact: true,
+                    id: "editVPDefinition",
+                    name: "Edit Presentation Definition",
+                    path: AppConstants.getPaths().get("VP_DEFINITION_EDIT"),
+                    protected: true,
+                    showOnSidePanel: false
+                },
+                {
+                    component: lazy(() =>
+                        import("@wso2is/admin.presentation-definitions.v1/pages/openid4vp-configuration")),
+                    exact: true,
+                    id: "verifiablePresentationSettings",
+                    name: "Verifier Settings",
+                    path: AppConstants.getPaths().get("OPENID4VP_CONFIG"),
+                    protected: true,
+                    showOnSidePanel: false
+                }
+            ],
+            component: lazy(() =>
+                import("@wso2is/admin.presentation-definitions.v1/pages/presentation-definitions")),
+            exact: true,
+            featureFlagKey: FeatureFlagConstants.FEATURE_FLAG_KEY_MAP.PRESENTATION_DEFINITIONS,
+            icon: {
+                icon: getSidePanelIcons().presentationDefinitions
+            },
+            id: "presentationDefinitions",
+            name: "Presentation Definitions",
+            order: 9,
+            path: AppConstants.getPaths().get("VP_DEFINITIONS"),
             protected: true,
             showOnSidePanel: true
         },
@@ -2064,6 +2118,22 @@ export const getAppViewRoutes = (): RouteInterface[] => {
             showOnSidePanel: false
         }
     ];
+
+    if (isCLISettingsConfigurable) {
+        defaultRoutes.push({
+            component: lazy(() => import("@wso2is/admin.cli-settings.v1/pages/cli-settings-page")),
+            exact: true,
+            icon: {
+                icon: <CLISettingsIcon />
+            },
+            id: "cliSettings",
+            name: "cliSettings:page.title",
+            order: 32,
+            path: AppConstants.getPaths().get("CLI_SETTINGS"),
+            protected: true,
+            showOnSidePanel: true
+        });
+    }
 
     if (isMcpServersFeatureEnabled) {
         defaultRoutes.push(

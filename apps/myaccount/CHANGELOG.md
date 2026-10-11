@@ -1,5 +1,17 @@
 # @wso2is/myaccount
 
+## 4.4.2
+
+### Patch Changes
+
+- [#10651](https://github.com/wso2/identity-apps/pull/10651) [`3694e431ce7255f87924ae5d6312b13415902f33`](https://github.com/wso2/identity-apps/commit/3694e431ce7255f87924ae5d6312b13415902f33) Thanks [@DilshanSenarath](https://github.com/DilshanSenarath)! - Add proxy_context_path support for console and myaccount apps
+
+## 4.4.1
+
+### Patch Changes
+
+- [#10599](https://github.com/wso2/identity-apps/pull/10599) [`4b360cbb7575caa5fb184b07a67de613f031997a`](https://github.com/wso2/identity-apps/commit/4b360cbb7575caa5fb184b07a67de613f031997a) Thanks [@pavinduLakshan](https://github.com/pavinduLakshan)! - Improve locale field in myaccount app to list all locales
+
 ## 4.4.0
 
 ### Minor Changes

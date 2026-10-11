@@ -17,6 +17,7 @@
  */
 
 import { Theme, styled } from "@mui/material/styles";
+import Alert from "@oxygen-ui/react/Alert";
 import Box from "@oxygen-ui/react/Box";
 import Chip from "@oxygen-ui/react/Chip";
 import IconButton from "@oxygen-ui/react/IconButton";
@@ -25,7 +26,9 @@ import Tooltip from "@oxygen-ui/react/Tooltip";
 import Typography from "@oxygen-ui/react/Typography";
 import { TrashIcon } from "@oxygen-ui/react-icons";
 import { getAllLocalClaims } from "@wso2is/admin.claims.v1/api";
+import { ClaimManagementConstants } from "@wso2is/admin.claims.v1/constants/claim-management-constants";
 import { Claim, ClaimsGetParams } from "@wso2is/core/models";
+import { ContentLoader } from "@wso2is/react-components";
 import classNames from "classnames";
 import React, {
     FunctionComponent,
@@ -36,6 +39,7 @@ import React, {
     useState
 } from "react";
 import { useTranslation } from "react-i18next";
+import { FlowExtensionConstants } from "../../constants/flow-extension-constants";
 import { ReactComponent as LockIcon } from "../../resources/assets/images/icons/lock.svg";
 import AddClaimModal from "./add-claim-modal";
 import AddOrganizationAttributeModal from "./add-organization-attribute-modal";
@@ -44,6 +48,7 @@ import { OrganizationContextConstants } from "../../constants/organization-conte
 import FlowContextTreeNode from "./flow-context-tree-node";
 import {
     AddEntryModalStateInterface,
+    ContextPathOutputInterface,
     FlowContextTreePropsInterface,
     FlowExtensionAccessConfigInterface,
     NodeType,
@@ -193,6 +198,16 @@ const FieldConfigPanel: FunctionComponent<FieldConfigPanelProps> = ({
     const canModifyOp: boolean = !!selectedNode?.allowedOperations.includes("MODIFY")
         && isLeaf
         && !selectedNode?.readOnly;
+
+    const claimURI: string = selectedNode?.isClaim
+        ? selectedNode?.path?.replace(/^\/user\/claims\//, "")
+        : "";
+
+    const isUsernameClaim: boolean = claimURI === ClaimManagementConstants.USER_NAME_CLAIM_URI;
+    const showUsernameWriteWarning: boolean = isUsernameClaim && !!selectedNode?.modify;
+
+    const isIdentityClaim: boolean = claimURI.startsWith(ClaimManagementConstants.IDENTITY_CLAIM_URI_PREFIX);
+    const showIdentityClaimWriteWarning: boolean = isIdentityClaim && !!selectedNode?.modify;
 
     const getExposeEncryptionDisabledReason: () => string = (): string => {
         if (!canExposeOp) {
@@ -345,6 +360,26 @@ const FieldConfigPanel: FunctionComponent<FieldConfigPanelProps> = ({
                         ) }
                     </Box>
 
+                    { showUsernameWriteWarning && (
+                        <Alert
+                            severity="info"
+                            sx={ { mt: 2 } }
+                            data-componentid={ `${componentId}-username-write-warning` }
+                        >
+                            { t("flowExtension:contextTree.fieldConfig.usernameWriteWarning") }
+                        </Alert>
+                    ) }
+
+                    { showIdentityClaimWriteWarning && (
+                        <Alert
+                            severity="warning"
+                            sx={ { mt: 2 } }
+                            data-componentid={ `${componentId}-identity-claim-write-warning` }
+                        >
+                            { t("flowExtension:contextTree.fieldConfig.identityClaimWriteWarning") }
+                        </Alert>
+                    ) }
+
                     { /* ── Encryption section ── */ }
                     <Typography
                         variant="subtitle2"
@@ -401,6 +436,7 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
 }: FlowContextTreePropsInterface): ReactElement => {
 
     const [ allClaims, setAllClaims ] = useState<Claim[]>([]);
+    const [ isClaimsLoading, setIsClaimsLoading ] = useState<boolean>(true);
 
     /**
      * Display names for dynamic entries, keyed by the last segment of their path — claim URIs for
@@ -409,7 +445,7 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
      * An access config stores paths only, so an entry restored on reload has nothing but its key
      * to be named after. Without this it would render as `orgTaxId` rather than `Tax ID`.
      */
-    const displayNames: Map<string, string> = useMemo(() => {
+    const claimDisplayNames: Map<string, string> = useMemo(() => {
         const map: Map<string, string> = new Map();
 
         allClaims.forEach((c: Claim) => {
@@ -427,23 +463,10 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
         return map;
     }, [ allClaims, organizationAttributeOptions ]);
 
-    const claimReadOnlyMap: Map<string, boolean> = useMemo(() => {
-        const map: Map<string, boolean> = new Map();
-
-        allClaims.forEach((c: Claim) => {
-            if (c.claimURI) {
-                map.set(c.claimURI, !!c.readOnly);
-            }
-        });
-
-        return map;
-    }, [ allClaims ]);
-
     const [ tree, setTree ] = useState<TreeNodeStateInterface[]>(() =>
         initialAccessConfig
             ? mapMetadataToStateWithAccessConfig(contextTree, initialAccessConfig, undefined, {
-                allowReadOnlyClaimsModification,
-                claimReadOnlyMap: undefined
+                allowReadOnlyClaimsModification
             })
             : mapMetadataToState(contextTree)
     );
@@ -474,7 +497,6 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
     useEffect(() => {
         const params: ClaimsGetParams = {
             "exclude-hidden-claims": true,
-            "exclude-identity-claims": true,
             filter: null,
             limit: null,
             offset: null,
@@ -491,6 +513,9 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
             })
             .catch(() => {
                 // Silently fail — claims are optional for display name resolution.
+            })
+            .finally(() => {
+                setIsClaimsLoading(false);
             });
     }, []);
 
@@ -498,13 +523,12 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
     useEffect(() => {
         setTree(
             initialAccessConfig
-                ? mapMetadataToStateWithAccessConfig(contextTree, initialAccessConfig, displayNames, {
-                    allowReadOnlyClaimsModification,
-                    claimReadOnlyMap
+                ? mapMetadataToStateWithAccessConfig(contextTree, initialAccessConfig, claimDisplayNames, {
+                    allowReadOnlyClaimsModification
                 })
                 : mapMetadataToState(contextTree)
         );
-    }, [ contextTree, initialAccessConfig, displayNames, claimReadOnlyMap, allowReadOnlyClaimsModification ]);
+    }, [ contextTree, initialAccessConfig, claimDisplayNames, allowReadOnlyClaimsModification ]);
 
     // Default-select the first leaf once the tree is populated, and re-target if
     // the current selection no longer resolves (e.g. after a delete).
@@ -634,11 +658,8 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
             let updated: TreeNodeStateInterface[] = prev;
 
             claims.forEach((claim: Claim, idx: number) => {
-                // When the flow type permits modifying read-only claims, the claim's
-                // read-only flag is ignored entirely — it's treated as a normal writable
-                // entry. Only when modification is disallowed do we honour the flag.
-                const treatAsReadOnly: boolean = !!claim.readOnly && !allowReadOnlyClaimsModification;
-                const allowedOps: string[] = treatAsReadOnly
+                const isReadOnlyClaim: boolean = FlowExtensionConstants.isReadOnlyClaim(claim.claimURI);
+                const allowedOps: string[] = isReadOnlyClaim
                     ? [ "EXPOSE" ]
                     : [ "EXPOSE", "MODIFY" ];
 
@@ -660,7 +681,7 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
                     // trailing one, so the internal form is always `/user/claims/<uri>` — the shape
                     // the access-config serialiser expects to bracket-encode.
                     path: `${parentNode.path.replace(/\/+$/, "")}/${claim.claimURI}`,
-                    readOnly: treatAsReadOnly,
+                    readOnly: isReadOnlyClaim,
                     replaceable: false,
                     title: claim.displayName
                 };
@@ -671,11 +692,21 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
             return updated;
         });
         setClaimModal({ open: false, parentNode: null });
-    }, [ claimModal, allowReadOnlyClaimsModification ]);
+    }, [ claimModal ]);
 
     const handleClaimModalClose = useCallback((): void => {
         setClaimModal({ open: false, parentNode: null });
     }, []);
+
+    const hasConfiguredClaims: boolean = useMemo(
+        () => [ ...initialAccessConfig?.expose ?? [], ...initialAccessConfig?.modify ?? [] ]
+            .some((entry: ContextPathOutputInterface) => entry.path?.startsWith("/user/claims[")),
+        [ initialAccessConfig ]
+    );
+
+    if (isClaimsLoading && hasConfiguredClaims) {
+        return <ContentLoader data-componentid={ `${componentId}-loader` } />;
+    }
 
     return (
         <Box
@@ -749,7 +780,6 @@ const FlowContextTree: FunctionComponent<FlowContextTreePropsInterface> = ({
                     ) || []
                 }
                 externalClaims={ allClaims }
-                allowReadOnlyClaimsModification={ allowReadOnlyClaimsModification }
                 onClose={ handleClaimModalClose }
                 onSubmit={ handleClaimModalSubmit }
                 data-componentid={ `${componentId}-add-claim-modal` }

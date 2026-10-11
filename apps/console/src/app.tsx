@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023-2024, WSO2 LLC. (https://www.wso2.com).
+ * Copyright (c) 2023-2026, WSO2 LLC. (https://www.wso2.com).
  *
  * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -43,6 +43,7 @@ import {
 import { AppState } from "@wso2is/admin.core.v1/store";
 import { EventPublisher } from "@wso2is/admin.core.v1/utils/event-publisher";
 import { commonConfig } from "@wso2is/admin.extensions.v1";
+import TrialExpiryWizard from "@wso2is/admin.extensions.v1/components/subscription/trial-expiry/trial-expiry-wizard";
 import { featureGateConfig } from "@wso2is/admin.extensions.v1/configs/feature-gate";
 import useGetAllFeatures from "@wso2is/admin.feature-gate.v1/api/use-get-all-features";
 import { useOnboardingStatus } from "@wso2is/admin.onboarding.v1/hooks/use-onboarding-status";
@@ -219,7 +220,8 @@ const App = ({
         // mirroring how the branding subsystem builds its theme asset prefix. Avoids depending on
         // window.publicPath, which is not set in the Console runtime.
         const clientOrigin: string = (window[ "AppUtils" ]?.getConfig()?.clientOrigin ?? "").replace(/\/+$/, "");
-        const appBase: string = (window[ "AppUtils" ]?.getConfig()?.appBase ?? "").replace(/^\/+|\/+$/g, "");
+        const appBase: string = (window[ "AppUtils" ]?.getConfig()?.appBaseWithProxy ?? "")
+            .replace(/^\/+|\/+$/g, "");
         const themePrefix: string = `${ clientOrigin }${ appBase ? "/" + appBase : "" }/libs/themes/${ theme }`;
 
         return resolveAppLogoFilePath(appFaviconPath, themePrefix);
@@ -506,6 +508,7 @@ const App = ({
                                     organizationType={ organizationType }
                                 >
                                     <TrialProvider>
+                                        <TrialExpiryWizard />
                                         <SessionManagementProvider
                                             onSessionTimeoutAbort={ handleSessionTimeoutAbort }
                                             onSessionLogout={ handleSessionLogout }
