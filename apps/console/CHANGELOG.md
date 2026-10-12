@@ -1,5 +1,37 @@
 # @wso2is/console
 
+## 4.17.4
+
+### Patch Changes
+
+- [#10716](https://github.com/wso2/identity-apps/pull/10716) [`793ad4acc7e56605f748093065046c71211d8dea`](https://github.com/wso2/identity-apps/commit/793ad4acc7e56605f748093065046c71211d8dea) Thanks [@mmafrar](https://github.com/mmafrar)! - fix: Remove index files in `@wso2is/admin.workflow-requests.v1` package
+
+- Updated dependencies [[`793ad4acc7e56605f748093065046c71211d8dea`](https://github.com/wso2/identity-apps/commit/793ad4acc7e56605f748093065046c71211d8dea)]:
+  - @wso2is/admin.workflow-requests.v1@1.0.21
+
+## 4.17.3
+
+### Patch Changes
+
+- [#10720](https://github.com/wso2/identity-apps/pull/10720) [`4d71ee6f88433fcc5c0193a62087df6c34740229`](https://github.com/wso2/identity-apps/commit/4d71ee6f88433fcc5c0193a62087df6c34740229) Thanks [@DonOmalVindula](https://github.com/DonOmalVindula)! - Bundle the Monaco editor with the Console instead of loading it from a CDN.
+
+- Updated dependencies [[`4d71ee6f88433fcc5c0193a62087df6c34740229`](https://github.com/wso2/identity-apps/commit/4d71ee6f88433fcc5c0193a62087df6c34740229)]:
+  - @wso2is/admin.core.v1@2.60.1
+  - @wso2is/admin.branding.v1@2.32.175
+  - @wso2is/admin.cds.v1@1.6.10
+  - @wso2is/admin.logs.v1@1.6.10
+  - @wso2is/admin.policy-administration.v1@1.0.126
+  - @wso2is/admin.users.v1@2.38.57
+
+## 4.17.2
+
+### Patch Changes
+
+- [#10703](https://github.com/wso2/identity-apps/pull/10703) [`6a49e4ba78f0d12ff0fe6b363a5ead62e5346925`](https://github.com/wso2/identity-apps/commit/6a49e4ba78f0d12ff0fe6b363a5ead62e5346925) Thanks [@ranuka-laksika](https://github.com/ranuka-laksika)! - Distinguish client ID fetch failure from config update failure
+
+- Updated dependencies [[`6a49e4ba78f0d12ff0fe6b363a5ead62e5346925`](https://github.com/wso2/identity-apps/commit/6a49e4ba78f0d12ff0fe6b363a5ead62e5346925)]:
+  - @wso2is/admin.agents.v1@1.2.3
+
 ## 4.17.1
 
 ### Patch Changes
