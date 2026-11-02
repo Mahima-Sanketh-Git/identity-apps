@@ -413,10 +413,9 @@ const OrgHandleFieldAdapter = ({ component, formState, formStateHandler, fieldEr
                 value={orgHandle}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                loading={isChecking}
                 error={touched && !!error}
                 placeholder="e.g. acmecorp"
-                icon={uniqueIconName || undefined}/>
+                icon={isChecking ? <Icon name="notched circle" loading /> : (uniqueIconName || undefined)}/>
             {touched && error && (
                 <Label basic color="red" pointing>
                     {error}
